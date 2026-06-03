@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StockPulse Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root {
+  --bg: #0E0E10;
+  --paper: #17171A;
+  --ink: #EDE6D5;
+  --ink2: #A8A192;
+  --ink3: #9E9684;
+  --rule: #EDE6D5;
+  --line: #2D2A24;
+  --bull: #E07B7B;
+  --bull-bg: #2A1818;
+  --bear: #5FB97A;
+  --bear-bg: #18271E;
+  --neutral: #B0A082;
+  --accent: #D9A93F;
+  --accent-bg: #2A2418;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); font-family: 'DM Sans', system-ui, sans-serif; color: var(--ink); -webkit-font-smoothing: antialiased; line-height: 1.5; }
+.container { max-width: 1080px; margin: 0 auto; background: var(--bg); }
+.font-display { font-family: 'Fraunces', Georgia, serif; }
+.num-mono { font-family: 'JetBrains Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+.smallcaps { font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink3); font-weight: 500; }
+.rule-thick { border-top: 2px solid var(--rule); }
+.rule-thin { border-top: 0.5px solid var(--line); }
+.hover-row:hover { background: var(--paper); }
+button { font-family: inherit; cursor: pointer; }
+
+/* HEADER */
+.header { position: relative; padding: 40px 48px 32px; background: var(--paper); border-bottom: 2px solid var(--rule); }
+.header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; gap: 24px; }
+.header-meta-tag { display: flex; align-items: center; gap: 12px; margin-bottom: 4px; }
+.company-name { font-family: 'Fraunces', Georgia, serif; font-size: 56px; font-weight: 400; line-height: 1; letter-spacing: -0.02em; }
+.ticker-row { margin-top: 8px; display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; }
+.ticker { font-family: 'JetBrains Mono', monospace; font-size: 18px; color: var(--ink2); font-weight: 500; }
+.price-block { text-align: right; }
+.price { font-family: 'JetBrains Mono', monospace; font-size: 52px; font-weight: 500; line-height: 1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.price-change { font-family: 'JetBrains Mono', monospace; font-size: 16px; margin-top: 4px; font-weight: 500; }
+.one-liner { padding-top: 20px; margin-top: 8px; border-top: 2px solid var(--rule); }
+.one-liner p { font-family: 'Fraunces', Georgia, serif; font-size: 22px; line-height: 1.4; font-style: italic; color: var(--ink); font-weight: 400; max-width: 720px; }
+
+/* VERDICT */
+.verdict-block { display: grid; grid-template-columns: 1fr 1.4fr; gap: 0; border-bottom: 2px solid var(--rule); }
+.verdict-left { padding: 32px 48px; border-right: 0.5px solid var(--line); background: var(--paper); }
+.verdict-text { font-family: 'Fraunces', Georgia, serif; font-size: 64px; font-weight: 500; line-height: 1; margin-bottom: 8px; }
+.verdict-meta { display: flex; gap: 24px; font-size: 13px; color: var(--ink2); flex-wrap: wrap; }
+.verdict-meta strong { color: var(--ink); font-weight: 500; }
+.verdict-right { padding: 32px 48px; background: var(--bg); display: flex; flex-direction: column; gap: 18px; justify-content: center; }
+.score-bar { width: 100%; }
+.score-bar-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+.score-bar-value { font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 500; }
+.score-track { position: relative; height: 6px; background: var(--line); }
+.score-midline { position: absolute; left: 50%; top: -3px; bottom: -3px; width: 1px; background: var(--ink2); }
+.score-fill { position: absolute; top: 0; bottom: 0; }
+.pct-track { position: relative; height: 6px; background: var(--line); }
+.pct-fill { position: absolute; top: 0; bottom: 0; left: 0; background: var(--accent); }
+
+/* KEY POINTS */
+.key-block { display: grid; grid-template-columns: 1.4fr 1fr; gap: 0; border-bottom: 2px solid var(--rule); }
+.key-left { padding: 28px 48px; border-right: 0.5px solid var(--line); }
+.key-right { padding: 28px 48px; background: var(--paper); }
+.key-list { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
+.key-item { display: flex; align-items: flex-start; gap: 12px; padding-bottom: 10px; }
+.key-item:not(:last-child) { border-bottom: 0.5px solid var(--line); }
+.key-item p { font-size: 14px; line-height: 1.5; color: var(--ink); }
+.arrow { display: inline-block; font-weight: bold; font-size: 14px; line-height: 1.2; margin-top: 2px; }
+.arrow.bull { color: var(--bull); }
+.arrow.bear { color: var(--bear); }
+.arrow.neutral { color: var(--neutral); }
+.fundamentals { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 24px; margin-top: 16px; }
+.fund-key { font-size: 12px; color: var(--ink3); margin-bottom: 2px; }
+.fund-val { font-family: 'JetBrains Mono', monospace; font-size: 17px; font-weight: 500; color: var(--ink); font-variant-numeric: tabular-nums; }
+
+/* TABS */
+.tab-bar { position: sticky; top: 0; z-index: 10; background: var(--bg); border-bottom: 2px solid var(--rule); padding: 0 48px; }
+.tab-list { display: flex; gap: 28px; }
+.tab-btn { padding: 16px 0; background: none; border: none; border-bottom: 2px solid transparent; margin-bottom: -2px; font-family: 'DM Sans'; font-size: 14px; font-weight: 400; color: var(--ink3); letter-spacing: 0.02em; transition: all 0.15s ease; }
+.tab-btn:hover { color: var(--ink); }
+.tab-btn.active { color: var(--ink); font-weight: 600; border-bottom-color: var(--ink); }
+.tab-btn .eng { font-size: 12px; color: var(--ink3); margin-left: 4px; }
+
+/* SECTIONS */
+.section { padding: 40px 48px; animation: fadeIn 0.25s ease-out; }
+.section.alt { background: var(--paper); }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+.section-header { margin-bottom: 24px; padding-bottom: 12px; border-bottom: 2px solid var(--rule); display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; }
+.section-num { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--ink3); font-weight: 500; }
+.section-title { font-family: 'Fraunces', Georgia, serif; font-size: 32px; font-weight: 500; letter-spacing: -0.01em; }
+.section-eng { margin-left: auto; }
+
+/* TECHNICAL */
+.tech-grid { display: grid; grid-template-columns: 1fr 1.4fr; gap: 36px; }
+.trigger-list .trigger { display: flex; align-items: center; gap: 12px; padding: 10px 12px; margin-bottom: 4px; }
+.trigger.bull { background: var(--bull-bg); border-left: 3px solid var(--bull); }
+.trigger.bear { background: var(--bear-bg); border-left: 3px solid var(--bear); }
+.trigger.neutral { background: var(--paper); border-left: 3px solid var(--neutral); }
+.trigger-weight { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 600; min-width: 42px; }
+.trigger.bull .trigger-weight { color: var(--bull); }
+.trigger.bear .trigger-weight { color: var(--bear); }
+.trigger.neutral .trigger-weight { color: var(--neutral); }
+.trigger-text { font-size: 13px; line-height: 1.4; flex: 1; }
+
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead tr { border-bottom: 1.5px solid var(--rule); }
+th { text-align: left; padding: 8px 6px; font-size: 12px; color: var(--ink3); letter-spacing: 0.1em; text-transform: uppercase; font-weight: 500; }
+th.center { text-align: center; }
+th.right { text-align: right; }
+tbody tr { border-bottom: 0.5px solid var(--line); }
+td { padding: 10px 6px; }
+td.center { text-align: center; }
+td.right { text-align: right; }
+.signal-pill { display: inline-block; min-width: 24px; padding: 2px 8px; color: #0E0E10; font-size: 12px; font-weight: 600; letter-spacing: 0.05em; }
+.signal-pill.bull, .signal-pill.dyu { background: var(--bull); }
+.signal-pill.bear, .signal-pill.kong { background: var(--bear); }
+.signal-pill.neutral, .signal-pill.zhong { background: var(--neutral); }
+
+.notes-strip { margin-top: 14px; padding: 12px 14px; background: var(--paper); border-left: 3px solid var(--line); font-size: 12px; color: var(--ink2); line-height: 1.6; }
+
+/* CHIP */
+.chip-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.chip-card { padding: 16px 18px; background: var(--bg); }
+.section.alt .chip-card { background: var(--bg); }
+.chip-card.pos { border-top: 2px solid var(--bull); }
+.chip-card.neg { border-top: 2px solid var(--bear); }
+.chip-card.mid { border-top: 2px solid var(--neutral); }
+.chip-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.chip-head .smallcaps.pos { color: var(--bull); }
+.chip-head .smallcaps.neg { color: var(--bear); }
+.chip-head .smallcaps.mid { color: var(--neutral); }
+.chip-data { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 500; margin-bottom: 6px; color: var(--ink); }
+.chip-impact { font-size: 12px; color: var(--ink2); line-height: 1.4; }
+
+/* VALUATION */
+.scenarios { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 36px; }
+.scenario { background: var(--paper); padding: 24px 22px; }
+.scenario.bear { border-top: 3px solid var(--bear); }
+.scenario.base { border-top: 3px solid var(--accent); }
+.scenario.bull { border-top: 3px solid var(--bull); }
+.scenario .smallcaps { margin-bottom: 16px; }
+.scenario.bear .smallcaps { color: var(--bear); }
+.scenario.base .smallcaps { color: var(--accent); }
+.scenario.bull .smallcaps { color: var(--bull); }
+.scenario-price { font-family: 'Fraunces', Georgia, serif; font-size: 44px; font-weight: 500; color: var(--ink); line-height: 1; margin-bottom: 4px; font-variant-numeric: tabular-nums; }
+.scenario-upside { font-family: 'JetBrains Mono', monospace; font-size: 13px; margin-bottom: 16px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.scenario-detail { font-size: 12px; color: var(--ink2); line-height: 1.6; }
+.scenario-detail strong { color: var(--ink); font-weight: 500; }
+.scenario-trigger { margin-top: 10px; padding-top: 10px; border-top: 0.5px solid var(--line); color: var(--ink); font-style: italic; font-weight: 500; }
+
+.val-bottom { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+.chart-wrap { height: 240px; background: var(--paper); padding: 16px 8px 8px; position: relative; }
+.peer-self { background: var(--accent-bg); }
+.peer-self td:first-child { font-weight: 600; }
+
+/* INDUSTRY */
+.ind-top { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; margin-bottom: 32px; }
+.revmix-item { margin-bottom: 14px; }
+.revmix-head { display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 14px; }
+.revmix-name { font-weight: 500; }
+.revmix-pct { font-family: 'JetBrains Mono', monospace; font-weight: 600; font-variant-numeric: tabular-nums; }
+.revmix-bar { height: 8px; background: var(--line); }
+.revmix-bar-fill { height: 100%; }
+.revmix-bar-fill.up { background: var(--bull); }
+.revmix-bar-fill.down { background: var(--bear); }
+.revmix-bar-fill.flat { background: var(--neutral); }
+.revmix-note { font-size: 12px; color: var(--ink2); margin-top: 4px; line-height: 1.4; }
+
+.supply-item { display: flex; gap: 12px; padding: 8px 0; border-bottom: 0.5px solid var(--line); }
+.supply-item:last-child { border-bottom: none; }
+.supply-tier { font-size: 12px; font-weight: 600; min-width: 32px; padding-top: 2px; letter-spacing: 0.05em; }
+.supply-tier.upstream { color: var(--accent); }
+.supply-tier.peer { color: var(--neutral); }
+.supply-tier.downstream { color: var(--bull); }
+.supply-name { font-size: 13px; font-weight: 500; margin-bottom: 2px; }
+.supply-relation { font-size: 12px; color: var(--ink2); line-height: 1.4; }
+
+.drivers { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 28px; }
+.driver { background: var(--bg); padding: 14px 16px; }
+.driver.confirmed { border-left: 3px solid var(--bull); }
+.driver.optionality { border-left: 3px solid var(--accent); }
+.driver-head { display: flex; justify-content: space-between; margin-bottom: 4px; gap: 8px; }
+.driver-name { font-size: 13px; font-weight: 500; }
+.driver-status { font-family: 'JetBrains Mono', monospace; font-size: 12px; padding: 2px 6px; color: #0E0E10; font-weight: 500; white-space: nowrap; }
+.driver-status.confirmed { background: var(--bull); }
+.driver-status.optionality { background: var(--accent); }
+.driver-horizon { font-size: 12px; color: var(--ink3); margin-bottom: 4px; }
+.driver-note { font-size: 12px; color: var(--ink2); line-height: 1.4; }
+
+.moat-box { padding: 20px 24px; background: var(--bg); border-left: 4px solid var(--accent); }
+.moat-box .smallcaps { margin-bottom: 8px; color: var(--accent); }
+.moat-text { font-family: 'Fraunces', Georgia, serif; font-size: 16px; line-height: 1.6; font-style: italic; color: var(--ink); }
+
+/* BULL/BEAR */
+.bb-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--line); margin-bottom: 32px; }
+.bb-bull { padding: 24px 28px; border-right: 1px solid var(--line); background: var(--bull-bg); }
+.bb-bear { padding: 24px 28px; background: var(--bear-bg); }
+.bb-head { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+.bb-head h3 { font-family: 'Fraunces', Georgia, serif; font-size: 22px; font-weight: 500; }
+.bb-head.bull h3 { color: var(--bull); }
+.bb-head.bear h3 { color: var(--bear); }
+.bb-icon { font-size: 20px; font-weight: bold; }
+.bb-icon.bull { color: var(--bull); }
+.bb-icon.bear { color: var(--bear); }
+.bb-point { display: flex; gap: 10px; padding: 10px 0; align-items: flex-start; }
+.bb-point:not(:last-child) { border-bottom: 0.5px solid var(--line); }
+.bb-weight { font-size: 12px; padding: 2px 6px; font-weight: 600; min-width: 22px; text-align: center; border: 1px solid; flex-shrink: 0; }
+.bb-weight.high { color: var(--bear); border-color: var(--bear); }
+.bb-weight.mid { color: var(--accent); border-color: var(--accent); }
+.bb-weight.low { color: var(--ink2); border-color: var(--ink3); }
+.bb-text { font-size: 13px; line-height: 1.5; flex: 1; color: var(--ink); }
+
+.risks { display: flex; flex-direction: column; gap: 8px; margin-bottom: 32px; }
+.risk-row { display: grid; grid-template-columns: 60px 1fr 80px; gap: 16px; padding: 14px 16px; background: var(--paper); align-items: center; }
+.risk-sev { font-size: 12px; padding: 3px 8px; color: #0E0E10; font-weight: 600; text-align: center; letter-spacing: 0.05em; }
+.risk-sev.high { background: var(--bear); }
+.risk-sev.mid { background: var(--accent); }
+.risk-sev.low { background: var(--neutral); }
+.risk-title { font-size: 14px; font-weight: 500; margin-bottom: 2px; }
+.risk-desc { font-size: 12px; color: var(--ink2); line-height: 1.4; }
+.risk-horizon { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--ink3); text-align: right; }
+
+.action-plan { background: #1F1B12; color: #EDE6D5; padding: 32px 36px; border: 1px solid #3A311E; }
+.ap-head { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+.ap-head .smallcaps { color: #D9CBA8; }
+.ap-icon { color: #D9CBA8; font-size: 18px; }
+.ap-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 24px; }
+.ap-label { font-size: 12px; color: #A89A78; margin-bottom: 6px; letter-spacing: 0.1em; text-transform: uppercase; }
+.ap-value { font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.ap-value.sl { color: #F4A8A8; }
+.ap-value.pos { color: #B8D9B8; }
+.ap-strategy { border-top: 0.5px solid #3A311E; padding-top: 18px; font-size: 14px; line-height: 1.7; color: #E6E0D0; font-family: 'Fraunces', serif; font-style: italic; }
+
+/* FOOTER */
+.footer { padding: 24px 48px; border-top: 2px solid var(--rule); background: var(--paper); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+.footer-meta { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--ink3); }
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .header { padding: 24px 20px 20px; }
+  .header-top { flex-direction: column; }
+  .price-block { text-align: left; }
+  .company-name { font-size: 36px; }
+  .price { font-size: 36px; }
+  .verdict-block, .key-block { grid-template-columns: 1fr; }
+  .verdict-left, .verdict-right, .key-left, .key-right { padding: 20px; border-right: none; border-bottom: 0.5px solid var(--line); }
+  .verdict-text { font-size: 44px; }
+  .tab-bar { padding: 0 16px; overflow-x: auto; }
+  .tab-list { gap: 20px; white-space: nowrap; }
+  .section { padding: 24px 20px; }
+  .section-title { font-size: 24px; }
+  .tech-grid, .val-bottom, .ind-top, .bb-grid { grid-template-columns: 1fr; gap: 24px; }
+  .bb-bull, .bb-bear { border-right: none; }
+  .bb-bear { border-top: 1px solid var(--line); }
+  .scenarios, .chip-grid, .drivers { grid-template-columns: 1fr; }
+  .ap-grid { grid-template-columns: 1fr; }
+  .risk-row { grid-template-columns: 50px 1fr; }
+  .risk-horizon { grid-column: 1 / -1; text-align: left; }
+  .footer { padding: 16px 20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ================================================================== -->
+<!--  ⬇⬇⬇  ONLY EDIT THIS BLOCK — REPLACE THE DATA OBJECT BELOW  ⬇⬇⬇   -->
+<!-- ================================================================== -->
+<script id="dashboard-data" type="application/json">
+{
+  "schema_version": "1.0",
+  "meta": {
+    "ticker": "UNCY",
+    "name": "Unicycive 生技",
+    "market": "US",
+    "generated_at": "2026-06-03 14:30",
+    "last_price": 7.23,
+    "change_pct": 0.0
+  },
+  "summary": {
+    "verdict": "觀望",
+    "confidence": "中",
+    "trigger_score": 0.17,
+    "trend_score": 1.5,
+    "percentile": 50.9,
+    "regime": "trending",
+    "position_adjustment": 1.0,
+    "one_liner": "OLC 磷結合劑 6/29 FDA 大限為二元決勝點；CRL 僅製造商瑕疵已修正，惟短線轉弱、宜事件前輕倉觀望。",
+    "key_points": [
+      {
+        "text": "OLC 6/29 PDUFA 二元事件，分析師視為已大幅去風險",
+        "direction": "bull"
+      },
+      {
+        "text": "2025 CRL 僅第三方製造商合規問題，無臨床/安全疑慮",
+        "direction": "bull"
+      },
+      {
+        "text": "10 位分析師一致強力買進，均價目標 $41 (+467%)",
+        "direction": "bull"
+      },
+      {
+        "text": "短線跌破 MA20 (-7.4%)、空頭吞噬型態與買方矛盾",
+        "direction": "bear"
+      },
+      {
+        "text": "持續虧損 (EPS -2.25)、Altman Z=1.31 財務困境級",
+        "direction": "bear"
+      }
+    ],
+    "fundamentals": {
+      "pe": "1.2x (Fwd)",
+      "eps": "-2.25 (TTM)",
+      "yield": "0%",
+      "pb": "4.84x",
+      "roe": "-163.1%"
+    }
+  },
+  "technical": {
+    "triggers": [
+      {
+        "type": "bear",
+        "text": "Supertrend 翻空 (方向 -1)",
+        "weight": -1
+      },
+      {
+        "type": "bear",
+        "text": "MACD 柱狀體翻綠、動能轉弱",
+        "weight": -1
+      },
+      {
+        "type": "bear",
+        "text": "均值回歸 MeanRev=-0.81 偏弱",
+        "weight": -0.7
+      },
+      {
+        "type": "bull",
+        "text": "KD 黃金交叉 / 多方排列",
+        "weight": 1
+      },
+      {
+        "type": "bull",
+        "text": "內部人偏買 (買3/賣0，淨 +755 萬股)",
+        "weight": 0.5
+      },
+      {
+        "type": "bull",
+        "text": "OBV 20 日上升 (籌碼默默吸納)",
+        "weight": 0.5
+      },
+      {
+        "type": "neutral",
+        "text": "機構持股 37.6%，ADX=28 趨勢成形",
+        "weight": 0
+      }
+    ],
+    "signals": [
+      {
+        "category": "趨勢",
+        "indicator": "MA 排列",
+        "value": "價<MA20 (-7.4%)，惟>MA120 (+6.6%)",
+        "signal": "中",
+        "note": "短均轉弱、長均仍撐"
+      },
+      {
+        "category": "趨勢",
+        "indicator": "Supertrend",
+        "value": "8.75 / 方向 -1",
+        "signal": "空",
+        "note": "短線翻空"
+      },
+      {
+        "category": "趨勢",
+        "indicator": "ADX / DMI",
+        "value": "ADX 28，DI- 23.6>DI+ 23.2",
+        "signal": "空",
+        "note": "趨勢成形但偏空"
+      },
+      {
+        "category": "動能",
+        "indicator": "MACD",
+        "value": "Hist -0.111 翻綠",
+        "signal": "空",
+        "note": "動能走弱"
+      },
+      {
+        "category": "動能",
+        "indicator": "RSI(14)",
+        "value": "37.7",
+        "signal": "中",
+        "note": "偏弱但未到超賣"
+      },
+      {
+        "category": "動能",
+        "indicator": "KD",
+        "value": "K27.6 / D27.1 金叉",
+        "signal": "多",
+        "note": "低檔黃金交叉"
+      },
+      {
+        "category": "量能",
+        "indicator": "OBV",
+        "value": "上升 (+16,555/日)",
+        "signal": "多",
+        "note": "資金默默吸納"
+      },
+      {
+        "category": "量能",
+        "indicator": "RVOL",
+        "value": "1.25",
+        "signal": "中",
+        "note": "量能略高於均量"
+      },
+      {
+        "category": "波動",
+        "indicator": "ATR / BB",
+        "value": "ATR 0.57，BB %B 19%",
+        "signal": "中",
+        "note": "波動擴張、近下軌"
+      },
+      {
+        "category": "型態",
+        "indicator": "K 線型態",
+        "value": "空頭吞噬 (Bearish)",
+        "signal": "空",
+        "note": "與買方矛盾，宜等確認"
+      }
+    ]
+  },
+  "chip": {
+    "rows": [
+      {
+        "category": "內部人",
+        "data": "買 3 / 賣 0，淨 +755 萬股 (董事 Aggarwal)",
+        "direction": "正",
+        "impact": "管理層看好、信號偏多"
+      },
+      {
+        "category": "機構持股",
+        "data": "10 家持有，佔 37.6% (主要持股 58%)",
+        "direction": "中",
+        "impact": "法人參與度中等"
+      },
+      {
+        "category": "空單",
+        "data": "7.8% of float，回補天數 3.7 天",
+        "direction": "中",
+        "impact": "空單中等、壓力有限"
+      },
+      {
+        "category": "空單變化",
+        "data": "月變化 -6.1% (空方回補)",
+        "direction": "正",
+        "impact": "空方略撤、略偏多"
+      },
+      {
+        "category": "流通股",
+        "data": "流通 90.9%，在外股 2,670 萬股",
+        "direction": "中",
+        "impact": "微型股、流動性有限"
+      },
+      {
+        "category": "分析師",
+        "data": "10 人強力買進，均價 $41 (+467%)",
+        "direction": "正",
+        "impact": "賣方高度樂觀(假設核准)"
+      }
+    ]
+  },
+  "valuation": {
+    "current_price": 7.23,
+    "scenarios": [
+      {
+        "scenario": "bear",
+        "eps_assumption": "OLC 未獲准、無營收",
+        "pe_assumption": "現金價值 + 管線殘值",
+        "target": 3,
+        "trigger": "6/29 PDUFA 再遭 CRL 或拒絕"
+      },
+      {
+        "scenario": "base",
+        "eps_assumption": "OLC 核准、放量保守",
+        "pe_assumption": "風險調整 rNPV (保守)",
+        "target": 18,
+        "trigger": "如期核准但滲透緩慢 + 稀釋"
+      },
+      {
+        "scenario": "bull",
+        "eps_assumption": "OLC 核准 + 放量順利",
+        "pe_assumption": "rNPV + UNI-494 選擇權",
+        "target": 41,
+        "trigger": "核准 + 採用超預期、UNI-494 加值"
+      }
+    ],
+    "peer_comparison": [
+      {
+        "ticker": "UNCY",
+        "name": "Unicycive",
+        "pe": 0,
+        "pb": 4.84,
+        "yield": 0
+      },
+      {
+        "ticker": "GILD",
+        "name": "Gilead",
+        "pe": 17.4,
+        "pb": 6.74,
+        "yield": 2.6
+      },
+      {
+        "ticker": "UTHR",
+        "name": "United Therap",
+        "pe": 19.9,
+        "pb": 3.86,
+        "yield": 0
+      },
+      {
+        "ticker": "AMGN",
+        "name": "Amgen",
+        "pe": 22.8,
+        "pb": 19.28,
+        "yield": 3.1
+      },
+      {
+        "ticker": "NBIX",
+        "name": "Neurocrine",
+        "pe": 23.8,
+        "pb": 4.57,
+        "yield": 0
+      }
+    ],
+    "eps_forecast": [
+      {
+        "year": "2025A",
+        "bear": -2.25,
+        "base": -2.25,
+        "bull": -2.25
+      },
+      {
+        "year": "2026E",
+        "bear": -1.2,
+        "base": -0.9,
+        "bull": -0.6
+      },
+      {
+        "year": "2027E",
+        "bear": -1.0,
+        "base": 2.5,
+        "bull": 6.04
+      }
+    ]
+  },
+  "industry": {
+    "revenue_mix": [
+      {
+        "segment": "OLC (磷結合劑/透析)",
+        "pct": 85,
+        "trend": "up",
+        "note": "主力資產，6/29 PDUFA 決定價值"
+      },
+      {
+        "segment": "UNI-494 (急性腎損傷)",
+        "pct": 10,
+        "trend": "flat",
+        "note": "孤兒藥資格，Phase 1 完成，選擇權"
+      },
+      {
+        "segment": "現金 / 其他",
+        "pct": 5,
+        "trend": "flat",
+        "note": "$57M 現金支撐至 2027"
+      }
+    ],
+    "supply_chain": [
+      {
+        "tier": "upstream",
+        "name": "第三方原料藥/製劑廠 (CDMO)",
+        "relation": "CRL 根源；合規進度為核准關鍵"
+      },
+      {
+        "tier": "upstream",
+        "name": "備援製造商",
+        "relation": "再提交後增列，降低單一供應風險"
+      },
+      {
+        "tier": "peer",
+        "name": "Fosrenol (鑭碳酸鹽, Takeda)",
+        "relation": "OLC 已證實生物等效之對照藥"
+      },
+      {
+        "tier": "peer",
+        "name": "Auryxia / Velphoro / XPHOZAH",
+        "relation": "既有磷結合劑/競品，市場成熟"
+      },
+      {
+        "tier": "downstream",
+        "name": "透析中心 / 腎臟科醫師",
+        "relation": "處方與採用通路；自建商業團隊中"
+      }
+    ],
+    "growth_drivers": [
+      {
+        "driver": "OLC FDA 核准 (6/29 PDUFA)",
+        "status": "optionality",
+        "horizon": "<1個月",
+        "note": "二元事件，決定公司存亡與估值"
+      },
+      {
+        "driver": "OLC 商業放量 (低藥丸負擔差異化)",
+        "status": "optionality",
+        "horizon": "1-2年",
+        "note": "核准後切入 >$1B 美國市場"
+      },
+      {
+        "driver": "UNI-494 急性腎損傷",
+        "status": "optionality",
+        "horizon": "2-3年",
+        "note": "孤兒藥；分析師估值多未計入"
+      },
+      {
+        "driver": "專利保護至 2031 (可延至 2035)",
+        "status": "confirmed",
+        "horizon": "長期",
+        "note": "組成專利 + 40 項全球專利"
+      }
+    ],
+    "lead_indicators": [
+      {
+        "indicator": "6/29 PDUFA 決定",
+        "current": "審查中 (on track)",
+        "signal": "等待，最關鍵催化"
+      },
+      {
+        "indicator": "製造商 FDA 合規狀態",
+        "current": "進度中；EU 查廠無缺失",
+        "signal": "正向"
+      },
+      {
+        "indicator": "現金水位 / 燒錢",
+        "current": "$57.1M (5/11)，季虧 $12.8M",
+        "signal": "runway 至 2027，惟需再融資"
+      },
+      {
+        "indicator": "分析師目標區間",
+        "current": "$15–$90 (均 $41)",
+        "signal": "假設核准；分歧大"
+      }
+    ],
+    "moat": "OLC 採奈米粒子鑭技術，藥丸數量/體積減半且吞服免嚼，命中腎科最大未滿足需求；組成專利至 2031（可延 2035）構成壁壘。"
+  },
+  "bull_bear": {
+    "bull_points": [
+      {
+        "text": "CRL 僅製造商合規問題，FDA 對臨床/安全零疑慮，核准路徑大幅去風險",
+        "weight": "高"
+      },
+      {
+        "text": "OLC 藥丸負擔減半、吞服免嚼，直擊腎科醫師首要未滿足需求",
+        "weight": "高"
+      },
+      {
+        "text": "10 位分析師一致強力買進，均價目標 $41 (+467% 空間)",
+        "weight": "中"
+      },
+      {
+        "text": "內部人持續買進 (買3/賣0)，董事淨增 755 萬股",
+        "weight": "中"
+      },
+      {
+        "text": "現金 $57M 撐至 2027，足以走完核准與啟動上市",
+        "weight": "中"
+      },
+      {
+        "text": "UNI-494 (急性腎損傷孤兒藥) 為估值未計入的選擇權",
+        "weight": "低"
+      }
+    ],
+    "bear_points": [
+      {
+        "text": "6/29 PDUFA 為二元事件，再遭 CRL 將使股價腰斬以上",
+        "weight": "高"
+      },
+      {
+        "text": "財務體質極弱：Altman Z=1.31 困境級、F-Score 2/9、ROE -163%",
+        "weight": "高"
+      },
+      {
+        "text": "磷結合劑市場成熟擁擠 (sevelamer 學名藥 + Auryxia/XPHOZAH)，放量存疑",
+        "weight": "中"
+      },
+      {
+        "text": "歷史大幅稀釋；核准後上市仍可能需再融資",
+        "weight": "中"
+      },
+      {
+        "text": "短線型態轉弱 (空頭吞噬、跌破 MA20、MACD 翻空)",
+        "weight": "中"
+      },
+      {
+        "text": "分析師目標分歧極大 ($15–$90)，反映高度不確定",
+        "weight": "低"
+      }
+    ],
+    "risks": [
+      {
+        "risk": "FDA 再度發出 CRL/拒絕",
+        "severity": "高",
+        "horizon": "短期",
+        "description": "6/29 大限，製造合規若未過關，股價恐腰斬以上"
+      },
+      {
+        "risk": "財務困境與資金壓力",
+        "severity": "高",
+        "horizon": "短期",
+        "description": "Altman Z=1.31、持續燒錢，未獲准恐面臨融資與下市壓力"
+      },
+      {
+        "risk": "股權稀釋",
+        "severity": "中",
+        "horizon": "長期",
+        "description": "上市備援與營運需資金，增發將攤薄每股價值"
+      },
+      {
+        "risk": "商業化放量不如預期",
+        "severity": "中",
+        "horizon": "長期",
+        "description": "市場成熟、學名藥競爭，給付與處方滲透具不確定性"
+      },
+      {
+        "risk": "短線技術轉弱",
+        "severity": "低",
+        "horizon": "短期",
+        "description": "空頭吞噬 + 跌破 MA20，事件前震盪加大"
+      }
+    ],
+    "recommendation": {
+      "entry_zone": "$7.23 – $7.26（右側進場，信心：等待確認）",
+      "stop_loss": "$6.09（A. ATR 波動停損）",
+      "position_size": "輕倉觀望（事件前）",
+      "strategy": "VF-6 純右側策略；惟空頭吞噬與買方矛盾，建議事件前僅輕倉、嚴守停損，待 6/29 PDUFA 明朗再決定加減碼。"
+    }
+  }
+}
+</script>
+<!-- ================================================================== -->
+<!--  ⬆⬆⬆  END OF DATA BLOCK — DO NOT EDIT BELOW THIS LINE  ⬆⬆⬆        -->
+<!-- ================================================================== -->
+
+<div class="container">
+  <div id="app"></div>
+</div>
+
+<script>
+// ============================================================
+// StockPulse Dashboard — render engine (do not edit)
+// ============================================================
+const D = JSON.parse(document.getElementById('dashboard-data').textContent);
+
+const arrow = d => {
+  if (d === 'bull' || d === '正' || d === '多') return '<span class="arrow bull">↗</span>';
+  if (d === 'bear' || d === '負' || d === '空') return '<span class="arrow bear">↘</span>';
+  return '<span class="arrow neutral">—</span>';
+};
+
+const sigClass = s => s === '多' ? 'bull' : s === '空' ? 'bear' : 'neutral';
+const dirClass = d => d === '正' ? 'pos' : d === '負' ? 'neg' : 'mid';
+
+const fmtChange = pct => {
+  const up = pct >= 0;
+  return `<span style="color: ${up ? 'var(--bull)' : 'var(--bear)'};">${up ? '▲' : '▼'} ${up ? '+' : ''}${pct.toFixed(2)}%</span>`;
+};
+
+// HEADER
+function renderHeader() {
+  const m = D.meta, s = D.summary;
+  return `
+  <div class="header">
+    <div class="header-top">
+      <div>
+        <div class="header-meta-tag"><span class="smallcaps">${m.market} · 股票研究儀表板</span></div>
+        <h1 class="company-name">${m.name}</h1>
+        <div class="ticker-row">
+          <span class="ticker">${m.ticker}</span>
+          <span class="smallcaps">AS OF ${m.generated_at}</span>
+        </div>
+      </div>
+      <div class="price-block">
+        <div class="price">${m.market === 'TW' ? '' : '$'}${m.last_price.toFixed(2)}</div>
+        <div class="price-change">${fmtChange(m.change_pct)}</div>
+      </div>
+    </div>
+    <div class="one-liner"><p>"${s.one_liner}"</p></div>
+  </div>`;
+}
+
+// VERDICT
+function scoreBarHTML(value, label, min=-10, max=10) {
+  const pct = ((value - min) / (max - min)) * 100;
+  const isPos = value >= 0;
+  const fillStyle = isPos
+    ? `left: 50%; width: ${pct - 50}%; background: var(--bull);`
+    : `left: ${pct}%; width: ${50 - pct}%; background: var(--bear);`;
+  return `
+  <div class="score-bar">
+    <div class="score-bar-head">
+      <span class="smallcaps">${label}</span>
+      <span class="score-bar-value" style="color: ${isPos ? 'var(--bull)' : 'var(--bear)'};">${value > 0 ? '+' : ''}${value.toFixed(2)}</span>
+    </div>
+    <div class="score-track">
+      <div class="score-midline"></div>
+      <div class="score-fill" style="${fillStyle}"></div>
+    </div>
+  </div>`;
+}
+
+function renderVerdict() {
+  const s = D.summary;
+  const colorMap = { '強力買進': 'var(--bull)', '買進': 'var(--bull)', '觀望': 'var(--neutral)', '減碼': 'var(--bear)', '賣出': 'var(--bear)' };
+  const c = colorMap[s.verdict] || 'var(--neutral)';
+  return `
+  <div class="verdict-block">
+    <div class="verdict-left">
+      <div class="smallcaps" style="margin-bottom: 12px;">VERDICT</div>
+      <div class="verdict-text" style="color: ${c};">${s.verdict}</div>
+      <div class="verdict-meta">
+        <span>信心度 <strong>${s.confidence}</strong></span>
+        <span>市場制度 <strong>${s.regime}</strong></span>
+        <span>建議倉位 <strong>${s.position_adjustment}x</strong></span>
+      </div>
+    </div>
+    <div class="verdict-right">
+      ${scoreBarHTML(s.trigger_score, '觸發分數 TRIGGER')}
+      ${scoreBarHTML(s.trend_score, '趨勢分數 TREND')}
+      <div>
+        <div class="score-bar-head">
+          <span class="smallcaps">百分位 PERCENTILE</span>
+          <span class="score-bar-value">${s.percentile.toFixed(1)}%</span>
+        </div>
+        <div class="pct-track">
+          <div class="pct-fill" style="width: ${s.percentile}%;"></div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// KEY POINTS + FUNDAMENTALS
+function renderKey() {
+  const s = D.summary, f = s.fundamentals;
+  const fundEntries = [
+    ['本益比 P/E', f.pe], ['每股盈餘 EPS', f.eps], ['股價淨值 P/B', f.pb], ['股東報酬 ROE', f.roe], ['殖利率 Yield', f.yield]
+  ];
+  return `
+  <div class="key-block">
+    <div class="key-left">
+      <div class="smallcaps">關鍵摘要 · KEY POINTS</div>
+      <div class="key-list">
+        ${s.key_points.map(p => `
+          <div class="key-item">
+            ${arrow(p.direction)}
+            <p>${p.text}</p>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+    <div class="key-right">
+      <div class="smallcaps">基本面 · FUNDAMENTALS</div>
+      <div class="fundamentals">
+        ${fundEntries.map(([k, v]) => `
+          <div>
+            <div class="fund-key">${k}</div>
+            <div class="fund-val">${v}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+
+// TAB BAR
+function renderTabBar() {
+  const tabs = [
+    { id: 'all', label: '全覽', eng: 'Overview' },
+    { id: 'tech', label: '技術', eng: 'Technical' },
+    { id: 'chip', label: '籌碼', eng: 'Chip' },
+    { id: 'val', label: '估值', eng: 'Valuation' },
+    { id: 'ind', label: '產業', eng: 'Industry' },
+    { id: 'bb', label: '多空', eng: 'Bull/Bear' }
+  ];
+  return `
+  <div class="tab-bar">
+    <div class="tab-list">
+      ${tabs.map(t => `<button class="tab-btn ${t.id === 'all' ? 'active' : ''}" data-tab="${t.id}">${t.label}<span class="eng">${t.eng}</span></button>`).join('')}
+    </div>
+  </div>`;
+}
+
+// SECTION HEADER
+function sectionHeader(num, title, eng) {
+  return `<div class="section-header">
+    <span class="section-num">§ ${num}</span>
+    <h2 class="section-title">${title}</h2>
+    <span class="smallcaps section-eng">${eng}</span>
+  </div>`;
+}
+
+// TECHNICAL
+function renderTech() {
+  const t = D.technical;
+  return `
+  <div class="section" data-section="tech">
+    ${sectionHeader('01', '技術面', 'TECHNICAL ANALYSIS')}
+    <div class="tech-grid">
+      <div>
+        <div class="smallcaps" style="margin-bottom: 14px;">觸發訊號 · TRIGGERS</div>
+        <div class="trigger-list">
+          ${t.triggers.map(tr => `
+            <div class="trigger ${tr.type}">
+              <span class="trigger-weight">${tr.weight > 0 ? '+' : ''}${tr.weight.toFixed(1)}</span>
+              <span class="trigger-text">${tr.text}</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+      <div>
+        <div class="smallcaps" style="margin-bottom: 14px;">指標總覽 · INDICATOR MATRIX</div>
+        <table>
+          <thead><tr>
+            <th>類別</th><th>指標</th><th>數值</th><th class="center">方向</th>
+          </tr></thead>
+          <tbody>
+            ${t.signals.map(s => `
+              <tr class="hover-row">
+                <td style="color: var(--ink2); font-size: 12px;">${s.category}</td>
+                <td style="font-weight: 500;">${s.indicator}</td>
+                <td class="num-mono">${s.value}</td>
+                <td class="center"><span class="signal-pill ${sigClass(s.signal)}">${s.signal}</span></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+        <div class="notes-strip">${t.signals.slice(0, 3).map(s => `${s.indicator}: ${s.note}`).join(' · ')}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// CHIP
+function renderChip() {
+  return `
+  <div class="section alt" data-section="chip">
+    ${sectionHeader('02', '籌碼面', 'OWNERSHIP & FLOW')}
+    <div class="chip-grid">
+      ${D.chip.rows.map(r => `
+        <div class="chip-card ${dirClass(r.direction)}">
+          <div class="chip-head">
+            <span class="smallcaps ${dirClass(r.direction)}">${r.category}</span>
+            ${arrow(r.direction)}
+          </div>
+          <div class="chip-data">${r.data}</div>
+          <div class="chip-impact">${r.impact}</div>
+        </div>
+      `).join('')}
+    </div>
+  </div>`;
+}
+
+// VALUATION
+function renderVal() {
+  const v = D.valuation;
+  const labelMap = { bear: '空方', base: '基本', bull: '多方' };
+  return `
+  <div class="section" data-section="val">
+    ${sectionHeader('03', '估值推演', 'VALUATION SCENARIOS')}
+    <div class="scenarios">
+      ${v.scenarios.map(s => {
+        const upside = ((s.target - v.current_price) / v.current_price * 100);
+        const upColor = upside >= 0 ? 'var(--bull)' : 'var(--bear)';
+        return `
+        <div class="scenario ${s.scenario}">
+          <div class="smallcaps">${labelMap[s.scenario]} SCENARIO</div>
+          <div class="scenario-price">${D.meta.market === 'TW' ? '' : '$'}${s.target}</div>
+          <div class="scenario-upside" style="color: ${upColor};">${upside >= 0 ? '+' : ''}${upside.toFixed(1)}% vs ${D.meta.market === 'TW' ? '' : '$'}${v.current_price.toFixed(2)}</div>
+          <div class="scenario-detail">
+            <div style="margin-bottom: 4px;"><strong>EPS:</strong> ${s.eps_assumption}</div>
+            <div style="margin-bottom: 4px;"><strong>P/E:</strong> ${s.pe_assumption}</div>
+            <div class="scenario-trigger">Trigger: ${s.trigger}</div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+    <div class="val-bottom">
+      <div>
+        <div class="smallcaps" style="margin-bottom: 14px;">EPS 三情境預測 · EPS FORECAST</div>
+        <div class="chart-wrap"><canvas id="eps-chart" role="img" aria-label="EPS forecast bar chart by scenario"></canvas></div>
+      </div>
+      <div>
+        <div class="smallcaps" style="margin-bottom: 14px;">同業估值比較 · PEER COMPARISON</div>
+        <table>
+          <thead><tr>
+            <th>Ticker</th><th>公司</th><th class="right">P/E</th><th class="right">P/B</th><th class="right">Yield</th>
+          </tr></thead>
+          <tbody>
+            ${v.peer_comparison.map((p, i) => `
+              <tr class="${i === 0 ? 'peer-self' : ''}">
+                <td class="num-mono" style="font-weight: ${i === 0 ? 600 : 500};">${p.ticker}</td>
+                <td style="font-size: 12px; color: var(--ink2); font-weight: ${i === 0 ? 500 : 400};">${p.name}</td>
+                <td class="right num-mono">${p.pe === 0 ? 'N/A' : p.pe.toFixed(1)}</td>
+                <td class="right num-mono">${p.pb.toFixed(2)}</td>
+                <td class="right num-mono">${p.yield > 0 ? p.yield.toFixed(1) + '%' : '—'}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>`;
+}
+
+// INDUSTRY
+function renderInd() {
+  const i = D.industry;
+  const tierLabel = { upstream: '上游', peer: '同業', downstream: '下游' };
+  return `
+  <div class="section alt" data-section="ind">
+    ${sectionHeader('04', '產業地圖', 'INDUSTRY POSITIONING')}
+    <div class="ind-top">
+      <div>
+        <div class="smallcaps" style="margin-bottom: 14px;">營收結構 · REVENUE MIX</div>
+        ${i.revenue_mix.map(r => `
+          <div class="revmix-item">
+            <div class="revmix-head">
+              <span class="revmix-name">${r.segment}</span>
+              <span class="revmix-pct">${r.pct}%</span>
+            </div>
+            <div class="revmix-bar"><div class="revmix-bar-fill ${r.trend}" style="width: ${r.pct}%;"></div></div>
+            <div class="revmix-note">${r.note}</div>
+          </div>
+        `).join('')}
+      </div>
+      <div>
+        <div class="smallcaps" style="margin-bottom: 14px;">供應鏈節點 · SUPPLY CHAIN</div>
+        ${i.supply_chain.map(s => `
+          <div class="supply-item">
+            <span class="supply-tier ${s.tier}">${tierLabel[s.tier]}</span>
+            <div style="flex: 1;">
+              <div class="supply-name">${s.name}</div>
+              <div class="supply-relation">${s.relation}</div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+    <div style="margin-bottom: 28px;">
+      <div class="smallcaps" style="margin-bottom: 14px;">成長動能 · GROWTH DRIVERS</div>
+      <div class="drivers">
+        ${i.growth_drivers.map(g => `
+          <div class="driver ${g.status}">
+            <div class="driver-head">
+              <span class="driver-name">${g.driver}</span>
+              <span class="driver-status ${g.status}">${g.status === 'confirmed' ? '確定' : '選擇權'}</span>
+            </div>
+            <div class="driver-horizon">時程 · ${g.horizon}</div>
+            <div class="driver-note">${g.note}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+    <div style="margin-bottom: 28px;">
+      <div class="smallcaps" style="margin-bottom: 14px;">領先指標 · LEAD INDICATORS</div>
+      <table>
+        <thead><tr><th>指標</th><th>現況</th><th>訊號</th></tr></thead>
+        <tbody>
+          ${i.lead_indicators.map(l => `
+            <tr class="hover-row">
+              <td style="font-weight: 500;">${l.indicator}</td>
+              <td class="num-mono" style="font-size: 12px;">${l.current}</td>
+              <td style="font-size: 12px; color: var(--ink2);">${l.signal}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+    <div class="moat-box">
+      <div class="smallcaps">護城河 · MOAT</div>
+      <p class="moat-text">${i.moat}</p>
+    </div>
+  </div>`;
+}
+
+// BULL/BEAR
+function renderBB() {
+  const b = D.bull_bear;
+  const wClass = w => w === '高' ? 'high' : w === '中' ? 'mid' : 'low';
+  const sevClass = s => s === '高' ? 'high' : s === '中' ? 'mid' : 'low';
+  const r = b.recommendation;
+  return `
+  <div class="section" data-section="bb">
+    ${sectionHeader('05', '多空辯論', 'BULL VS BEAR')}
+    <div class="bb-grid">
+      <div class="bb-bull">
+        <div class="bb-head bull"><span class="bb-icon bull">↗</span><h3>多方論點</h3></div>
+        ${b.bull_points.map(p => `
+          <div class="bb-point">
+            <span class="bb-weight ${wClass(p.weight)}">${p.weight}</span>
+            <span class="bb-text">${p.text}</span>
+          </div>
+        `).join('')}
+      </div>
+      <div class="bb-bear">
+        <div class="bb-head bear"><span class="bb-icon bear">↘</span><h3>空方論點</h3></div>
+        ${b.bear_points.map(p => `
+          <div class="bb-point">
+            <span class="bb-weight ${wClass(p.weight)}">${p.weight}</span>
+            <span class="bb-text">${p.text}</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+    <div style="margin-bottom: 32px;">
+      <div class="smallcaps" style="margin-bottom: 14px;">主要風險 · KEY RISKS</div>
+      <div class="risks">
+        ${b.risks.map(rk => `
+          <div class="risk-row">
+            <span class="risk-sev ${sevClass(rk.severity)}">${rk.severity} 級</span>
+            <div>
+              <div class="risk-title">${rk.risk}</div>
+              <div class="risk-desc">${rk.description}</div>
+            </div>
+            <span class="risk-horizon">${rk.horizon}</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+    <div class="action-plan">
+      <div class="ap-head">
+        <span class="ap-icon">◎</span>
+        <span class="smallcaps">操作建議 · ACTION PLAN</span>
+      </div>
+      <div class="ap-grid">
+        <div>
+          <div class="ap-label">進場區間</div>
+          <div class="ap-value">${r.entry_zone}</div>
+        </div>
+        <div>
+          <div class="ap-label">停損價</div>
+          <div class="ap-value sl">${r.stop_loss}</div>
+        </div>
+        <div>
+          <div class="ap-label">建議倉位</div>
+          <div class="ap-value pos">${r.position_size}</div>
+        </div>
+      </div>
+      <div class="ap-strategy">"${r.strategy}"</div>
+    </div>
+  </div>`;
+}
+
+function renderFooter() {
+  return `
+  <div class="footer">
+    <div class="smallcaps">StockPulse · Equity Research Dashboard</div>
+    <div class="footer-meta">Generated ${D.meta.generated_at} · Not investment advice</div>
+  </div>`;
+}
+
+// MOUNT
+const app = document.getElementById('app');
+app.innerHTML =
+  renderHeader() +
+  renderVerdict() +
+  renderKey() +
+  renderTabBar() +
+  '<div id="sections">' +
+  renderTech() +
+  renderChip() +
+  renderVal() +
+  renderInd() +
+  renderBB() +
+  '</div>' +
+  renderFooter();
+
+// CHART
+function drawChart() {
+  const ctx = document.getElementById('eps-chart');
+  if (!ctx) return;
+  const v = D.valuation.eps_forecast;
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: v.map(d => d.year),
+      datasets: [
+        { label: '空方', data: v.map(d => d.bear), backgroundColor: '#5FB97A' },
+        { label: '基本', data: v.map(d => d.base), backgroundColor: '#D9A93F' },
+        { label: '多方', data: v.map(d => d.bull), backgroundColor: '#E07B7B' }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom', labels: { font: { family: 'DM Sans', size: 12 }, color: '#A8A192', boxWidth: 12, boxHeight: 12 } },
+        tooltip: { backgroundColor: '#17171A', titleColor: '#EDE6D5', bodyColor: '#EDE6D5', borderColor: '#2D2A24', borderWidth: 1, titleFont: { family: 'DM Sans' }, bodyFont: { family: 'JetBrains Mono' } }
+      },
+      scales: {
+        x: { ticks: { font: { family: 'JetBrains Mono', size: 12 }, color: '#A8A192' }, grid: { display: false } },
+        y: { ticks: { font: { family: 'JetBrains Mono', size: 12 }, color: '#A8A192' }, grid: { color: '#2D2A24', drawBorder: false } }
+      }
+    }
+  });
+}
+drawChart();
+
+// TAB SWITCHING
+function setTab(id) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === id));
+  const sections = document.querySelectorAll('[data-section]');
+  if (id === 'all') {
+    sections.forEach(s => s.style.display = '');
+  } else {
+    sections.forEach(s => s.style.display = s.dataset.section === id ? '' : 'none');
+  }
+  // re-draw chart if val is visible
+  if (id === 'all' || id === 'val') {
+    setTimeout(() => {
+      const old = document.getElementById('eps-chart');
+      if (old && !old._chartDrawn) { drawChart(); old._chartDrawn = true; }
+    }, 50);
+  }
+}
+document.querySelectorAll('.tab-btn').forEach(b => b.addEventListener('click', () => setTab(b.dataset.tab)));
+</script>
+</body>
+</html>

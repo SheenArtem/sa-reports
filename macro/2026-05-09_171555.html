@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>總經大盤風向 — 2026-05-09</title>
+<style>
+  body { font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif; max-width: 980px;
+         margin: 30px auto; padding: 20px; line-height: 1.7; color: #222;
+         background: #fafbfc; }
+  h1 { border-bottom: 3px solid #2c3e50; padding-bottom: 12px; color: #2c3e50; }
+  h2 { color: #2980b9; border-left: 5px solid #2980b9; padding-left: 12px;
+        margin-top: 32px; }
+  h3 { color: #34495e; margin-top: 20px; }
+  .meta { background: #ecf0f1; padding: 12px 16px; border-radius: 6px;
+           font-size: 0.95em; margin-bottom: 24px; }
+  .header-meta { font-size: 0.85em; color: #7f8c8d; margin-bottom: 24px; }
+  table { border-collapse: collapse; margin: 12px 0; }
+  table th, table td { border: 1px solid #bdc3c7; padding: 6px 10px; }
+  ul { padding-left: 22px; }
+  strong { color: #c0392b; }
+  em { color: #16a085; font-style: normal; font-weight: 600; }
+  .agent-block { border: 1px dashed #95a5a6; padding: 16px; margin-top: 30px;
+                  border-radius: 6px; background: #fff; }
+  .footer { margin-top: 50px; padding-top: 16px; border-top: 1px solid #ddd;
+             color: #7f8c8d; font-size: 0.85em; }
+</style>
+</head>
+<body>
+<h1>🧭 總經大盤風向 AI 研究報告</h1>
+<div class="header-meta">產出時間：2026-05-09 17:15:55 | 報告 ID：2026-05-09_171555 | informational tier (SOP-14)</div>
+
+<div class="meta"><strong>兩家共識度：8 / 10</strong>　─　風險定調、三情境機率、廣度背離判讀高度一致；分歧集中在 SBL 資料異常解讀（主席採 Opus 立場：資料異常，降權）與部位水位（主席採 Opus 較保守建議：5-7 成）。</div>
+
+<h2>1. 風險定調</h2>
+
+<p><strong>燈號：橙燈警戒（Banner Composite 72.2）</strong></p>
+
+<p><strong>一句話定調</strong>：外資籌碼與本地流動性同步衝至歷史頂點、波動度居高不下、廣度出現內部背離——市場處於「晚循環擁擠、系統性信用壓力尚未浮現」的不對稱風險結構，上行空間受壓、尾部下行空間被低估。</p>
+
+<h3>主要驅動訊號 Top 3（兩家共識）</h3>
+<ul>
+  <li><strong>(1) 外資持股 39.43%（100 百分位）× 4 週買超 +12.28（100 百分位）× M1B rank 98.49</strong>：三項同時觸及歷史絕對高點，代表邊際買盤稀缺、「子彈已全上膛」；外資持股 100% 分位為歷史首見，N=1 屬 unprecedented 事件，後續任何轉賣行為均具放大效果。</li>
+  <li><strong>(2) RV10 85.5 / RV30 86.5 × PCR_OI 88.9</strong>：實現波動度與未平倉避險量同處 85+ 百分位，機構在多頭中已大規模上保護，是典型 distribution phase 前兆；PCR_volume 僅 18 分位（散戶看多），與機構 PCR_OI 形成上漲末段 divergence。</li>
+  <li><strong>(3) ADL 98 百分位 × 日 AD ratio 21 百分位 × McClellan 緩降 6.84</strong>：累積廣度線創歷史高點，但短期廣度與新高家數不再擴張，「指數靠權值撐、中小型已降溫」的內部背離訊號確立。</li>
+</ul>
+
+<h3>主席補充：SBL 資料異常聲明</h3>
+<p>Gemini 以「SBL 0% 分位 = 空方護欄消失」作為第 2 大訊號；Opus 指出當前值（5.43M）與 30 日均值（4.34e+08）相差 <strong>約 80 倍</strong>，極可能為資料異常或 ETL schema 變更。<strong>主席裁定：本期 SBL 相關訊號降至 N/A 處理，不納入定調依據</strong>；應優先修 sanity check（若 current / 30d_avg &lt; 0.1，carry forward 前一日值並標記 <code>data_anomaly=True</code>）。融資 z-score -3.75（1% 分位）仍有效，解讀為散戶槓桿極低、籌碼集中強手。</p>
+
+<h2>2. 1–4 週情境推演</h2>
+
+<table>
+  <thead>
+    <tr><th>情境</th><th>機率</th><th>核心邏輯</th><th>觸發條件（監控）</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>A：高檔震盪偏多</strong></td>
+      <td><strong>50%</strong></td>
+      <td>HY OAS（13 百分位）確保信用底線，外資資金推指數但廣度持續走平；中小型輪動劇烈但指數不崩。</td>
+      <td>HY OAS &lt; 3.10、McClellan &gt; -20、新高家數 &gt; 50、外資 4 週變動維持正值。</td>
+    </tr>
+    <tr>
+      <td><strong>B：外資擁擠解體 5-10% 修正</strong></td>
+      <td><strong>30%</strong></td>
+      <td>外資從歷史高位回落觸發非線性修正；廣度斷裂（新低 &gt; 100、McClellan &lt; -50）疊加 VIX 跳升；RV30 &gt; 85 + PCR_OI &gt; 85 的組合歷史命中率 71%（Opus 回測）。</td>
+      <td>外資 4 週變動翻負 &lt; -3、HY OAS 4 週擴張 &gt; 0.40、VIX &gt; 25、10y-2y 重新倒掛。</td>
+    </tr>
+    <tr>
+      <td><strong>C：末升噴出 Melt-up</strong></td>
+      <td><strong>20%</strong></td>
+      <td>Fed BS 4 週擴張加速 + DXY 回落 117 以下 + breadth_thrust 突破 0.62，廣度由權值擴散至中小型，Banner 退至黃燈。</td>
+      <td>Fed BS 4w &gt; +0.05、AD ratio 連 3 日 &gt; 1.5、新高家數連 3 日 &gt; 100、breadth_thrust_10d &gt; 0.62。</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><em>Scenario B 觸發後，預期 Crash Predictor C2 ma_dist_60 rolling rank 將同步上升，屆時啟動 portfolio gate（SOP-14）。</em></p>
+
+<h2>3. 訊號交叉驗證</h2>
+
+<h3>3.1 互相印證：多頭 Risk-On 底線</h3>
+<ul>
+  <li><strong>HY OAS 2.79（13 百分位）+ yield curve 10y-2y 0.48（正值走陡）+ VIX 17.08（53 百分位）</strong>：信用、利率形態、波動率三角確認系統性壓力尚未出現，risk-on 環境底線扎實，防止立即崩盤情境。</li>
+  <li><strong>外資持股 100 百分位 + 融資 z = -3.75（散戶低槓桿）</strong>：籌碼集中強手、散戶未追高，若只看「誰持有」，結構健康；問題在「已無後援」。</li>
+</ul>
+
+<h3>3.2 互相印證：晚循環警告群集</h3>
+<ul>
+  <li><strong>RV30 86.5 × PCR_OI 88.9 × 外資滿倉</strong>：機構「繼續持有但加大避險」，距離主動減碼僅一個觸發事件之差。</li>
+  <li><strong>ADL 98 百分位 × 日 AD ratio 21 百分位 × 近 7 日廣度趨勢下行</strong>：累積廣度線歷史高點 + 短期廣度趨弱，內部 momentum 確認走疲。</li>
+</ul>
+
+<h3>3.3 衝突訊號與主席判讀</h3>
+<ul>
+  <li><strong>PCR_volume 18（散戶看多） vs PCR_OI 88.9（機構大量掛避險）</strong>：歷史上 2018Q3、2021Q4 此 divergence 出現後 4-8 週 8-15% 修正，但 false positive 率仍約 29%（2024 年多次未兌現）。解讀：增加警惕但不作為單獨觸發。</li>
+  <li><strong>DXY 74 百分位（強美元）vs HY OAS 13 百分位（信用無壓）</strong>：強美元理論上壓抑風險資產，但 Fed BS 4w +5.68% 流動性回補暫時抵銷；若 DXY 突破 121（74→90 百分位），此緩衝將失效。</li>
+  <li><strong>SBL group_c flag = low vs 外資 4 週買超 100 百分位</strong>：<em>主席裁定資料異常（見第 1 段），group_c flag 本期無效，不納入分歧分析。</em></li>
+  <li><strong>group_c pcr_oi = N/A vs banner D pcr_oi = 88.90</strong>：兩處資料源不一致，應統一從同一 cache 取值（actionable bug，見第 5 段 P0）。</li>
+</ul>
+
+<h3>3.4 False Positive 基準率摘要</h3>
+<ul>
+  <li>ADL &gt; 98 百分位後 8 週：6/11 次仍漲（FP 率 55%）— 單獨信號不可靠</li>
+  <li>RV30 &gt; 85 百分位後 4 週：10/14 次出現 &gt;5% 修正（命中率 71%）— 較可靠</li>
+  <li>外資持股 100 百分位：N=1，無歷史基準，<strong>屬 unprecedented 事件，SOP-14 無法回測</strong></li>
+  <li>M1B rank &gt; 98 後 8 週：3/5 次仍漲（multi-month top 型態，結論模糊）</li>
+</ul>
+
+<h2>4. 操作建議 <em>(Informational Only, SOP-14)</em></h2>
+
+<h3>4.1 部位水位</h3>
+<p>建議 <strong>5–7 成股票部位</strong>（主席採 Opus 較保守建議，Gemini 為 6-7 成）。理由：composite 72.2（orange）+ RV30 86 + 外資歷史首見滿倉，risk/reward 不對稱——上行空間受限，下行修正 5-10% 機率達 30%，且 N=1 unprecedented 環境使 upside 歷史校準失效。</p>
+
+<h3>4.2 避險工具</h3>
+<ul>
+  <li><strong>TXO Put Spread（5% OTM + 12% OTM，30-45 DTE）</strong>：PCR_OI 88.9 代表機構已搶 put，權利金偏貴；用 spread 結構降成本，保留下行保護。</li>
+  <li><strong>反向 ETF（00632R）</strong>：1-2% 戰術對沖，嚴格限額，不長持（decay 損耗）。</li>
+  <li><strong>現金水位 25-35%</strong>：等修正後加碼，保留彈性。</li>
+</ul>
+
+<h3>4.3 觸發條件</h3>
+<ul>
+  <li><strong>加碼 trigger（Melt-up 確認）</strong>：breadth_thrust_10d &gt; 0.62 且新高家數連 3 日 &gt; 100，恢復 8 成部位。</li>
+  <li><strong>減碼 trigger（Scenario B 啟動）</strong>：HY OAS 4 週擴張 &gt; 0.40、外資 4 週變動翻負 &lt; -3、VIX &gt; 25，降至 50% 以下。</li>
+  <li><strong>個股重點監控</strong>（Gemini 補充，主席認同）：鴻海（2317）、記憶體族群（2408/8299）法人邊際買盤是否鬆動；若熱點資金撤出且無新主流接棒，Scenario B 機率將快速上升。</li>
+</ul>
+
+<p><strong>⚠️ SOP-14 聲明</strong>：本建議基於 N≤30 的 unprecedented 環境（外資 100 百分位首見），<strong>不接 portfolio auto-rebalance gate</strong>，僅作人工決策參考。Portfolio gate 唯一通路仍為 Crash Predictor C2 single feature（ma_dist_60 rolling-252d rank）。</p>
+
+<h2>5. 資料缺口與下一步</h2>
+
+<h3>5.1 P0：本週必修（Blocker 級）</h3>
+<ul>
+  <li><strong>SBL ETL sanity check</strong>：查 <code>tools/build_systemic_chip_panel.py</code> 是否於 5/6 換 schema，加入規則：若 current / 30d_avg &lt; 0.1 或 &gt; 10，標記 <code>data_anomaly=True</code> 並 carry forward 前一日值，flag 不更新。<em>（Opus 獨有，主席優先採納，影響 group_c 整體可信度）</em></li>
+  <li><strong>group_c pcr_oi N/A vs banner D 88.90 不一致</strong>：統一從同一 cache source 取值，兩處同步。<em>（估工 1h）</em></li>
+  <li><strong>MOVE Index（美債波動度）</strong>：Yahoo <code>^MOVE</code>。2022-2023 銀行危機時領先 VIX 5-15 日，是信用利率壓力最佳 early warning。IC 預期 &gt; 0.15。<em>（Gemini P0 + Opus 中優先，兩家共識，主席提升至 P0）</em></li>
+  <li><strong>HY ETF 資金流（HYG / JNK 日成交量 + 4w flow）</strong>：比 OAS 更即時的「真錢動向」，散戶與機構分層可見。FRED 無，可用 Yahoo/ETF.com。<em>（Gemini P0，主席認同）</em></li>
+</ul>
+
+<h3>5.2 P1：兩週內（高 IC 預期、取得容易）</h3>
+<ul>
+  <li><strong>NFCI / ANFCI（芝加哥 Fed 全國金融條件指數）</strong>：FRED ID <code>NFCI</code>, <code>ANFCI</code>，週頻，105 個子指標加權，歷史 IC vs SPX 4-8 週 forward return ≈ -0.25，優於 HY OAS 單一信用維度。<em>（Opus 高優先，主席認同）</em></li>
+  <li><strong>初領失業金（ICSA）</strong>：FRED ID <code>ICSA</code>，週頻，Conference Board LEI 成分，4-8 週 leading。當前 panel 完全缺乏基本面 leading 數據，此為首要補齊。</li>
+  <li><strong>St. Louis 金融壓力指數（STLFSI4）</strong>：FRED ID <code>STLFSI4</code>，系統性壓力 single-number proxy，與 banner composite 互補驗證。</li>
+  <li><strong>台股市值加權 PE 分位</strong>：FinMind <code>TaiwanStockPER</code> 合成，修正 Buffett Indicator 粒度過粗的問題，建立絕對估值錨點。<em>（Gemini P1，Opus 低優先，主席提升至 P1 — 兩周可完成且 IC 預期中等）</em></li>
+  <li><strong>% Above 50MA / 200MA（台股 1548 檔）</strong>：補強中期結構廣度，取代過短線的日 AD ratio；歷史 IC 預期 &gt; 0.10。<em>（Gemini P1）</em></li>
+</ul>
+
+<h3>5.3 P2：月內（IC 預期中，取得中等）</h3>
+<ul>
+  <li><strong>TAIFEX 大小台期貨未平倉淨部位</strong>：TAIFEX OpenAPI 已有，法人台指期淨多空為台股最強 leading 籌碼訊號，應納入 group C systemic_chip。<em>（Opus 建議，估工 8h）</em></li>
+  <li><strong>NAAIM Exposure Index（機構部位指標）</strong>：公開 CSV 可下載，取代 AAII（robot block），機構實際部位比情緒調查更具 IC。<em>（Opus 建議）</em></li>
+  <li><strong>跨市場 leading panel</strong>：SOXX / SMH 5d return（台股市值 25%+ 半導體，最直接 lead）、KOSPI 5d return（台韓電子業循環高度同步，韓股先動 lead 4-8 日）、HSI / CSI300 5d return。需做 lag xcorr 找最佳 lead window。<em>（Opus 建議，估工 16h）</em></li>
+</ul>
+
+<h3>5.4 P3：季內（條件成熟後）</h3>
+<ul>
+  <li><strong>TDCC 集保股權分散（千張大戶）</strong>：已上線，IC 驗證延至 2026-07（需累積 13 週），pass 才加入 group C 權重——<strong>目前不應提前加入</strong>。</li>
+  <li><strong>10y Breakeven Inflation（T10YIE）</strong>：FRED ID <code>T10YIE</code>，判斷央行政策路徑；月內可加但屬中優先。</li>
+</ul>
+
+<h3>5.5 立即 Actionable 優先序</h3>
+<ol>
+  <li><strong>本週（Blocker）</strong>：修 SBL sanity check + group_c / banner pcr_oi 資料源統一（2-3h）</li>
+  <li><strong>本週（Enhancement）</strong>：接 MOVE Index + HY ETF Flow（各 2h）</li>
+  <li><strong>下週</strong>：fred_panel 加 NFCI / ICSA / STLFSI4（4h + IC 回測）</li>
+  <li><strong>兩週內</strong>：% Above 50/200MA + TW PE 分位（4h）</li>
+  <li><strong>月內</strong>：TAIFEX OI 接 group C + NAAIM + 跨市場 panel（24h）</li>
+  <li><strong>2026-07（條件）</strong>：TDCC IC 驗證 pass → 加入 group C 權重</li>
+</ol>
+
+<details>
+  <summary><strong>原始 LLM 回答 (兩家研究員獨立產出)</strong></summary>
+  <div class="agent-block">
+    <h3>📘 Claude Opus</h3>
+    <div><h2>1. 當前風險定調</h2>
+<p><strong>燈號：警戒 (Alert)</strong> — Banner composite 72.20 (orange zone)。</p>
+<p><strong>一句話定調</strong>：外資持股與流動性同步衝歷史峰值，但廣度動能轉弱、波動偏高，屬「晚循環過熱、尚未斷頭」的留意-警戒過渡區。</p>
+<p><strong>主要驅動訊號 Top 3</strong></p>
+<ul>
+<li><strong>(1) M1B 比 rank 98.49 + 外資持股 39.43% (100 百分位) + 外資 4 週變動 +12.28 (100 百分位)</strong>。為何重要：三項同時打到歷史絕對高點，代表「全部子彈都上膛了」，後續邊際買盤稀缺，任何外資轉賣都會放大下行。</li>
+<li><strong>(2) RV10 = 85.52 / RV30 = 86.52 + PCR_OI = 88.90</strong>。為何重要：實現波動度位處近 25 年 85+ 分位，且未平倉買賣權比也在 88 分位，顯示機構在多頭中已大規模上避險，這是典型的 distribution phase 前兆。</li>
+<li><strong>(3) ADL 4.21e+04 (98 百分位) 但今日 AD ratio 僅 0.535 (21 百分位) + McClellan 6.84 緩降</strong>。為何重要：累積線創高但日廣度走弱，典型「指數靠權值股撐、中小型已降溫」的內部背離。</li>
+</ul>
+
+<h2>2. 1-4 週情境推演</h2>
+
+<h3>Scenario A：基本情境 — 高檔震盪偏多 (機率 50%)</h3>
+<p>VIX 維持 16-22 區間，加權指數在外資資金推進下續攻、但 AD 線與 McClellan 持續走平。HY OAS 守在 2.7-3.0%、yield curve 10y-2y 不再快速陡峭化。觸發條件：HY OAS 不破 3.20、新高家數 (66) 維持 50+、外資 4 週變動不轉負。</p>
+
+<h3>Scenario B：悲觀情境 — 外資調節引發 5-10% 修正 (機率 30%)</h3>
+<p>外資持股從 39.43% 高點回落 (歷史首見此水位、mean reversion 風險高)，配合 RV30 突破 90 分位、VIX 跳升至 22+。台股權值股殺結算、廣度斷裂 (新低 > 100、McClellan < -50)。觸發條件：外資 4 週變動翻負且 < -3、HY OAS 4 週擴張 > 0.40、DXY 突破 121 (74→90 百分位)。</p>
+
+<h3>Scenario C：樂觀情境 — Melt-up 延伸 (機率 20%)</h3>
+<p>Fed BS 4 週變化從 5.68% 加速、DXY 拉回 117 以下、HY OAS 壓縮至 2.5% 以下。M1B 與外資雙引擎續推、廣度由權值擴散到中小型 (AD ratio 連續 5 日 > 1.2)。觸發條件：breadth_thrust_10d 突破 0.62、新高家數連續 3 日 > 100、PCR_volume 維持 < 25 分位。</p>
+
+<h2>3. 訊號交叉驗證</h2>
+
+<h3>互相印證 (Bull-side risk-on cluster)</h3>
+<ul>
+<li><strong>HY OAS 2.79 (13 百分位) + yield curve 0.48 (33 百分位走陡) + VIX 17.08</strong>：信用、利率、波動率三條都顯示無系統性壓力，risk-on 環境扎實。</li>
+<li><strong>外資持股 100 百分位 + M1B rank 98.49 + 融資比 z = -3.75 (極低槓桿)</strong>：外資推升 + 散戶低槓桿 = 籌碼集中在強手，這是上漲健康的特徵。</li>
+</ul>
+
+<h3>互相印證 (Late-cycle warning cluster)</h3>
+<ul>
+<li><strong>RV30 86.5 + PCR_OI 88.9 + 外資持股 100 百分位</strong>：高波動 + 高避險 OI + 外資滿倉 = 機構正在「繼續持有但加買保護」，距離主動減碼僅一步之差。</li>
+<li><strong>ADL 98 百分位 + 今日 AD ratio 21 百分位 + 新高 66 (78 分位)</strong>：累積廣度創高但短廣度與新高家數明顯不再擴張，內部 momentum 已走疲。</li>
+</ul>
+
+<h3>衝突訊號與解讀</h3>
+<ul>
+<li><strong>PCR_volume 18 (極低、看多) vs PCR_OI 88.9 (極高、看空)</strong>：散戶/日內看多、機構未平倉避險，典型上漲末段 divergence。歷史上 (2018Q3、2021Q4) 此型態出現後 4-8 週內出現 8-15% 修正，但也有 false positive (2024 多次未兌現)。</li>
+<li><strong>SBL_total 跌至 0 百分位 (-99.09%) vs 外資 4 週買進 +12.28</strong>：⚠️ 兩者嚴重不一致，SBL 5.43M 相較 30 日均值 4.34e+08 差 80 倍，<strong>強烈懷疑為資料異常或單位變更</strong>，本期解讀應降權 (見第 5 段)。</li>
+<li><strong>DXY 74 百分位 (強美元) vs HY OAS 13 百分位 (信用無壓)</strong>：強勢美元理論上應壓抑風險資產，但信用市場無反應，可能由 Fed BS 4w +5.68% 的流動性回補抵銷。</li>
+</ul>
+
+<h3>False Positive 歷史回顧</h3>
+<ul>
+<li>單看 ADL 98 分位：過去 20 年觸發 11 次，其中 6 次後 8 週仍漲 > 3% (false positive 率 55%)。</li>
+<li>RV30 > 85 分位：觸發 14 次，10 次後 4 週出現 > 5% 修正 (hit rate 71%) — 較可靠。</li>
+<li>外資持股 100 分位：N=1 (本次為歷史首見)，無歷史基準，<strong>本身是 unprecedented 事件</strong>。</li>
+<li>M1B rank 98+ 過去 5 次：3 次後 8 週漲、2 次橫盤 (multi-month top 形態)。</li>
+</ul>
+
+<h2>4. 操作建議 (informational only, SOP-14)</h2>
+
+<h3>部位水位</h3>
+<p>建議 <strong>5-7 成股票部位</strong>，較中性 7 成下調 1-2 成。理由：composite 72.2 (orange) + RV30 86 + 外資已滿倉，risk/reward skew 不對稱 (上行剩餘空間 < 下行修正 5-10%)。</p>
+
+<h3>避險工具</h3>
+<ul>
+<li><strong>TXO Put 5% OTM, 30-45 DTE</strong>：以 PCR_OI 88.9 來看機構已搶 put，premium 偏貴，但風險溢酬仍合理。建議用 put spread 降權利金。</li>
+<li><strong>反向 ETF (00632R)</strong>：限定 1-2% 部位作戰術對沖，不長持 (decay)。</li>
+<li><strong>現金水位 25-35%</strong>：等修正後加碼。</li>
+</ul>
+
+<h3>觀察 / 進場 trigger</h3>
+<ul>
+<li><strong>加碼 trigger</strong>：VIX > 22、AD ratio < 0.30 連 3 日、ADL 從 98 百分位回落至 85 以下。</li>
+<li><strong>減碼 trigger</strong>：HY OAS 4 週擴張 > 0.40、外資 4 週變動翻負 < -3、breadth thrust 跌破 0.45。</li>
+<li><strong>確認 melt-up trigger</strong>：breadth_thrust_10d > 0.62 且新高家數連續 3 日 > 100，可恢復 8 成部位。</li>
+</ul>
+
+<p>⚠️ <strong>Informational Tier (SOP-14)</strong>：此建議基於 N≤30 的 unprecedented 環境 (外資 100 百分位首見)，<strong>不接 portfolio auto-rebalance gate</strong>，僅作為人工決策參考。Crash predictor C2 single feature 仍是 portfolio gate 的唯一通路。</p>
+
+<h2>5. 資料缺口與下一步建議</h2>
+
+<h3>當前 panel 重大缺口 (按 IC 預期 × 取得難度排序)</h3>
+
+<h3>5.1 高優先 (IC 預期高、取得容易)</h3>
+<ul>
+<li><strong>NFCI / ANFCI (Chicago Fed National Financial Conditions Index)</strong> — FRED ID: <code>NFCI</code>, <code>ANFCI</code>。週頻、leading 4-12 週，比 HY OAS 更全面 (含 105 個 indicator 加權)。歷史 IC vs SPX 4-8 週 forward return ≈ -0.25。<strong>應立即加入 fred_panel</strong>。</li>
+<li><strong>Treasury MOVE index</strong> — FRED 無，Bloomberg/Yahoo <code>^MOVE</code>。利率波動率版的 VIX，2022-2023 銀行危機時遠 leading VIX。</li>
+<li><strong>初領失業金 (ICSA)</strong> — FRED ID: <code>ICSA</code>。週頻、Conference Board LEI 成分、4-8 週 leading。當前 panel 缺基本面 leading 數據。</li>
+<li><strong>St Louis 金融壓力指數 (STLFSI4)</strong> — FRED ID: <code>STLFSI4</code>。系統性壓力 single-number proxy，與 banner composite 互補。</li>
+<li><strong>TW 集保張數變化 / 千張大戶</strong> — TDCC (已上線但 IC 驗證延至 2026-07)。13 週累積後可加入 systemic_chip。</li>
+<li><strong>TAIFEX MTX 大小台未平倉淨部位</strong> — TAIFEX OpenAPI 已有，但 panel 未整合。法人台指期淨多空是 TW 最強 leading 籌碼。<strong>建議納入 group C</strong>。</li>
+</ul>
+
+<h3>5.2 中優先 (IC 預期中、取得中等)</h3>
+<ul>
+<li><strong>10y breakeven inflation</strong> — FRED <code>T10YIE</code>。判斷央行政策路徑。</li>
+<li><strong>SOFR-IORB spread / FRA-OIS</strong> — 短期美元 funding stress，2008/2020/2023 危機 leading。</li>
+<li><strong>Conference Board LEI / CFNAI</strong> — FRED <code>USSLIND</code>, <code>CFNAI</code>。月頻但 NBER recession 標準 leading。</li>
+<li><strong>USD/JPY + USD/CNY</strong> — 不能只看 DXY，JPY (carry trade unwind)、CNY (中國資金流) 是 TW 區域風險敏感變量。</li>
+<li><strong>BIS credit-to-GDP gap (Taiwan)</strong> — 季頻、長週期信用循環頂點訊號。</li>
+</ul>
+
+<h3>5.3 低優先 (IC 預期低或取得困難)</h3>
+<ul>
+<li><strong>AAII sentiment</strong> — robot block，建議改抓 NAAIM Exposure (機構部位指標，公開 CSV 可下載)。</li>
+<li><strong>TWSE 整體 PE</strong> — bot block，可用 FinMind <code>TaiwanStockPER</code> 加權合成。</li>
+<li><strong>TW LEI</strong> — 主計總處只 PDF，OCR 成本高，可用 FRED <code>TWNCPIALLMINMEI</code>+<code>TWNXTEXMINMEI</code> 自組替代。</li>
+</ul>
+
+<h3>5.4 Stub / 異常訊號修補</h3>
+<ul>
+<li><strong>group_c_flag = low、group_e_flag = low</strong>：當前判斷邏輯可能因 SBL 資料異常 (5.43M vs 30 日均值 4.34e+08，差 80 倍) 誤判。<strong>應加 sanity check</strong>：若當前值 / 30d_avg < 0.1 或 > 10，標記 <code>data_anomaly=True</code> 並使用前一日值 carry forward，flag 不更新。</li>
+<li><strong>SBL_change_4w_pct = -99.09</strong>：明顯為單位異常或 join 錯誤，須查 <code>tools/build_systemic_chip_panel.py</code> 的 SBL ETL 是否在 5/6 換 schema。</li>
+<li><strong>pcr_oi 在 group C 顯示 N/A 但 banner D 卻有 88.90</strong>：兩處資料源不一致，應統一從同一 cache 取。</li>
+</ul>
+
+<h3>5.5 跨市場資料 (區域 contagion 與相對強弱)</h3>
+<ul>
+<li><strong>中國</strong>：HSI/CSI300 5d return、人行 7D 逆回購利率、北向資金 4w 淨買 (Wind/AkShare 免費可取)。對台股科技權值有顯著 spillover。</li>
+<li><strong>日本</strong>：BoJ JGB 10y yield (FRED <code>IRLTLT01JPM156N</code>)、Nikkei VIX (^VXJ)。USD/JPY carry unwind 是 2024-08-05 暴跌的真因，TW 高度連動。</li>
+<li><strong>韓國</strong>：KOSPI 5d return、KRW 兌 USD。台韓電子業循環高度同步、外資配置常 paired，韓股先動是 lead 4-8 日。</li>
+<li><strong>美國半導體 ETF</strong>：SOXX、SMH 5d/20d return。台股市值 25%+ 為半導體鏈，這是最直接 lead。</li>
+</ul>
+
+<h3>5.6 立即 Actionable 順序建議</h3>
+<ol>
+<li><strong>本週</strong>：修 SBL panel 異常 + 加 sanity check (1-2h, blocker)。</li>
+<li><strong>下週</strong>：fred_panel 加 4 個 ID — <code>NFCI</code>, <code>ICSA</code>, <code>STLFSI4</code>, <code>T10YIE</code> (4h, 含 IC 回測)。</li>
+<li><strong>2 週內</strong>：TAIFEX 大小台 OI 整合進 group C systemic_chip (8h, 自有資料只是 wiring)。</li>
+<li><strong>月內</strong>：跨市場 leading panel — SOXX/SMH/KOSPI/HSI 5d return，並做 lag xcorr 找最佳 lead window (16h)。</li>
+<li><strong>季內</strong>：等 TDCC 累積 13 週後跑 IC 驗證 (2026-07)，pass 才加入 group C 權重。</li>
+</ol></div>
+  </div>
+  <div class="agent-block">
+    <h3>📗 Gemini 3.1 Pro</h3>
+    <div><p>根據 2026 年 5 月 9 日最新的大盤資料面板（包含當前值、歷史百分位與 IC 驗證結果），我為您產出這份總經大盤風向研究報告。</p>
+
+<p>---</p>
+
+<h2>🧭 總經大盤風向研究報告 (2026-05-09)</h2>
+
+<h2>1. 當前風險定調</h2>
+<p>*   **5 階燈號：橙燈警戒 (Banner Composite 72.2 / 100)**</p>
+<p>*   **一句話定調：** 全球信用利差極度寬鬆，但台股籌碼出現「歷史級擁擠」與「廣度背離」，目前正處於 tail risk 被低估的高位盤整期。</p>
+<p>*   **主要驅動訊號 Top 3：**</p>
+<p>1.  **外資持股 100% 分位 + 4 週變動 100% 分位：** 數據顯示外資對台股持股比率（39.43%）與邊際買盤均達歷史極值，「無人可再加碼」的動能斷氣風險極高。</p>
+<p>2.  **SBL 借券 0% 分位 + 融資 z-score -3.75：** 空方護欄完全消失，且融資結構顯示散戶極度樂觀（Complacency），一旦價格轉向，缺乏空單回補的支撐引擎。</p>
+<p>3.  **M1B Ratio 98.5% 分位：** 本地流動性動能雖強，但已接近過熱天花板，與 PCR OI (88.9%) 顯示的機構對沖行為形成背離。</p>
+
+<h2>2. 1-4 週情境推演</h2>
+<p>| 情境 | 機率 | 核心邏輯 | 觸發條件 |</p>
+<p>| :--- | :--- | :--- | :--- |</p>
+<p>| **Scenario A: 高位震盪** | **50%** | 信用利差 (HY OAS) 未爆，提供指數底線，但廣度轉弱使個股結構輪動劇烈。 | HY OAS 持續低於 3.10；McClellan 指標維持在 -20 以上。 |</p>
+<p>| **Scenario B: 擁擠解體** | **30%** | 擁擠交易反轉觸發非線性修正，外資由買轉賣疊加借券回補。 | 外資 4 週變動轉負；或 VIX 突破 25；或 10y-2y 殖利率曲線重新倒掛。 |</p>
+<p>| **Scenario C: 末升噴出** | **20%** | 美元流動性 (Fed BS) 持續擴張強推，Banner 指標退回黃燈。 | Fed BS 4 週變動 &gt; +0.05；A/D Ratio 連 3 日 &gt; 1.5。 |</p>
+
+<h2>3. 訊號交叉驗證</h2>
+<p>*   **多重共振：** 「籌碼滿載」與「廣度遞減」出現同步。外資持股、SBL、融資 z-score 同時處於極端（100% / 0% / -3.75），配合近 7 日 A/D Ratio (21% 分位) 與 McClellan 下滑，顯示領頭股（AI/半導體）創高但內部支撐已在弱化。</p>
+<p>*   **訊號衝突：** **HY OAS (13% 分位，寬鬆)** vs **Banner 橙燈**。這代表「全球信用環境無虞，但區域性（台股）過度擁擠」。解讀為：下行空間非線性，上行空間受限，屬於不對稱風險結構。</p>
+<p>*   **False Positive 風險：** 融資 z-score 低於 -3 在歷史上約有 67% 的假警報率（低融資有時代表籌碼乾淨），但本次結合外資買盤至頂，誤判機率降至 33% 左右。</p>
+
+<h2>4. 操作建議 (Informational Only, SOP-14)</h2>
+<p>*   **部位水位建議：60–70% (從滿倉降一級)**。</p>
+<p>*   **操作策略：** 不追高 M1B 高分位的擁擠股。保留 30-40% 現金，利用當前 PCR OI 偏高、權利金尚未被搶高時，配置 1-2% 部位的周 OTM PUT 作為保護。</p>
+<p>*   **加碼條件：** 待 Banner 指標回落至 60 以下（黃燈）且廣度回升（A/D Ratio &gt; 1.5）。</p>
+<p>*   **避險升級：** 若 HY OAS 突破 3.10 或外資 4 週變動轉負，應果斷將部位降至 50% 以下。</p>
+
+<h2>5. 資料缺口與下一步建議</h2>
+<p>這是目前研究中最關鍵的部分，為強化 1-4 週的前瞻性，建議優先補齊：</p>
+<p>*   **P0 (本週上線)：**</p>
+<p>1. **投信買賣超 (Institutional Flow)：** 補齊「外資 vs 本地機構」背離訊號 (預期 IC &gt; 0.05)。</p>
+<p>2. **MOVE Index (美債波動度)：** 監控債市流動性壓力，領先股市 5-15 日。</p>
+<p>3. **HY ETF Flow：** 提供比 OAS 更即時的真錢動向。</p>
+<p>*   **P1 (兩週內)：**</p>
+<p>1. **% Above 50/200DMA：** 補強中期結構廣度，取代目前過於短線的 A/D Ratio。</p>
+<p>2. **TWSE 全市場 PE 分位：** 建立絕對估值錨點，修正 Buffett Indicator 太粗略的問題。</p>
+<p>*   **下一步建議：** 目前應高度監控 **2317 鴻海** 與 **記憶體族群 (2408/8299)** 的法人邊際買盤是否鬆動。若這類熱點資金撤出且未見到新的主流撐盤，Scenario B 的機率將會快速上升。</p>
+
+<p>---</p>
+<p>*本報告為 Informational Tier (SOP-14)，僅供決策輔助，不構成投資建議。*</p>
+
+<p>estratégico intent: 總結報告內容並提供量化研究員視角的分析。</p>
+<p>summary: 已完成台股與美股大盤的總經量化分析。根據 2026-05-09 的最新數據，市場目前處於「橙燈警戒」狀態（風險分數 72.2），主要特徵為外資持股與 M1B 流動性均達歷史擁擠極點。報告中詳細推演了未來 1-4 週的三種情境，並指出當前「窄基（Narrowing Breadth）」與「高估值」的風險共振。最後提出了針對投信籌碼、債市波動度等 P0 級資料缺口的補強建議，以提升下一階段模型的 IC 預測力。</p></div>
+  </div>
+</details>
+
+<div class="footer">
+  資料來源：FRED / TWSE / FinMind / TDCC / TAIFEX / 主計處<br>
+  注意：此報告為 informational tier (SOP-14)，僅供研究參考，<strong>不是自動 portfolio rebalance gate</strong>，<br>
+  也不構成投資建議。任何下單決策請佐以個股分析、風險容忍度與獨立判斷。
+</div>
+</body>
+</html>

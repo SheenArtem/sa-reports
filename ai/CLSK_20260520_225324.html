@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CLSK CleanSpark 研究報告</title>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/prop-types@15.8.1/prop-types.min.js"></script>
+<script src="https://unpkg.com/recharts@2.12.7/umd/Recharts.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  html, body { background: #0a0f1e; color: #e2e8f0; font-family: -apple-system, BlinkMacSystemFont, "Microsoft JhengHei", sans-serif; margin: 0; font-size: 16px; line-height: 1.55; }
+  /* bump tailwind 的迷你字級 */
+  .text-xs { font-size: 13px !important; }
+  .text-\[10px\] { font-size: 12px !important; }
+  .text-\[11px\] { font-size: 13px !important; }
+  .text-sm { font-size: 15px !important; }
+  .text-base { font-size: 16px !important; }
+  .card { background: #111827; border: 1px solid #1e3a5f; border-radius: 0.75rem; padding: 1rem; }
+  .custom-tooltip { background: #0a0f1e; border: 1px solid #1e3a5f; padding: 0.5rem 0.75rem; border-radius: 0.5rem; font-size: 12px; }
+</style>
+</head>
+<body>
+<div id="root">Loading...</div>
+
+<script>
+// Dashboard template schema version — 只要 JSON 的 schema_version 比這個高，就顯示相容性警告
+window.TEMPLATE_SCHEMA_VERSION = "1.0";
+window.REPORT_DATA = {"schema_version": "1.0", "meta": {"ticker": "CLSK", "name": "CleanSpark", "market": "US", "generated_at": "2026-05-20 15:30", "last_price": 15.97, "change_pct": 0.0}, "summary": {"verdict": "買進", "confidence": "中", "trigger_score": 4.47, "trend_score": 2.5, "percentile": 84.6, "regime": "trending", "position_adjustment": 1.0, "one_liner": "比特幣礦工轉型 AI 基礎設施雙引擎，內部人積極買入 + 分析師強力買進，但體質弱需嚴控停損。", "key_points": [{"text": "12 位分析師 strong_buy，目標價 $20 (+28% upside)", "direction": "bull"}, {"text": "內部人 20 筆全買無賣 (+7M 股淨買入)", "direction": "bull"}, {"text": "AI 基礎設施 pivot + 招募 $20B deal banker", "direction": "bull"}, {"text": "F-Score 1/9 + Altman Z 0.84 (distress 區)", "direction": "bear"}, {"text": "空單比 49.5% 偏高 + BTC $200M 帳上虧損", "direction": "bear"}], "fundamentals": {"pe": "N/A", "eps": "-2.08", "yield": "0%", "pb": "4.16x", "roe": "-34.8%"}, "monthly_revenue": []}, "technical": {"triggers": [{"type": "bull", "text": "Supertrend 多頭趨勢 + 方向轉正", "weight": 1.0}, {"type": "bull", "text": "MACD 柱狀體翻紅 + 動能持續增強", "weight": 1.5}, {"type": "bull", "text": "KD 黃金交叉/多方排列", "weight": 1.0}, {"type": "bull", "text": "MeanRev 強勢 +1.20 (tanh +0.83)", "weight": 1.0}, {"type": "bull", "text": "內部人積極買入 (買 85/賣 0)", "weight": 1.5}, {"type": "bull", "text": "K 線多頭吞噬 (Engulfing) 確認方向", "weight": 0.5}, {"type": "bear", "text": "RVOL 0.77x 量能未跟上 (z=-0.7)", "weight": -0.44}, {"type": "neutral", "text": "空頭比例 49.5% 高 (短期可空逼軋火種)", "weight": 0}], "signals": [{"category": "趨勢", "indicator": "MA5/20/60/120", "value": "多頭排列 (14.24/13.31/11.12/11.53)", "signal": "多", "note": "全均線上揚，價格距 MA60 +43.6%"}, {"category": "趨勢", "indicator": "ADX/DMI", "value": "ADX 33.5, DI+34.8 > DI-11.6", "signal": "多", "note": "強趨勢中多方主導"}, {"category": "趨勢", "indicator": "Supertrend", "value": "11.70 (多)", "signal": "多", "note": "方向 +1 確認多頭"}, {"category": "動能", "indicator": "MACD", "value": "0.9218 / Hist +0.0918", "signal": "多", "note": "金叉後柱體擴張"}, {"category": "動能", "indicator": "RSI", "value": "69.2", "signal": "多", "note": "接近超買但未過熱，配合背離警訊"}, {"category": "動能", "indicator": "KD", "value": "K 72.8 / D 63.3", "signal": "多", "note": "黃金交叉成立多方排列"}, {"category": "量能", "indicator": "RVOL/OBV", "value": "RVOL 0.77x / OBV Rising", "signal": "中", "note": "OBV 累積買盤但今日量縮"}, {"category": "波動", "indicator": "Bollinger %B", "value": "109.1% (上軌外)", "signal": "多", "note": "BB 寬度 33.7% 波動擴張"}, {"category": "波動", "indicator": "ATR/Squeeze", "value": "ATR 1.13 / Squeeze 擴張中", "signal": "多", "note": "Momentum 加速釋放"}, {"category": "型態", "indicator": "K 線型態", "value": "5/19 多頭吞噬", "signal": "多", "note": "蓋過 5/13 空頭母子訊號"}]}, "chip": {"rows": [{"category": "內部人", "data": "近期 20 筆全買 (買 85/賣 0)，淨買 7,010,334 股", "direction": "正", "impact": "高層極度看好業務轉型"}, {"category": "CEO/總裁買盤", "data": "5/13 CEO Schultz 20,525 / 總裁 Vecchiarelli 1,606", "direction": "正", "impact": "近期管理層落實買入"}, {"category": "機構持股", "data": "87.8% (異常高，部分疊算)", "direction": "正", "impact": "持股集中，籌碼穩定"}, {"category": "空單比例", "data": "49.5% of float, days to cover 4.5", "direction": "中", "impact": "空頭擁擠，逼空火種"}, {"category": "空單月變化", "data": "+4.8% MoM", "direction": "負", "impact": "空頭仍在加碼"}, {"category": "分析師共識", "data": "12 位 strong_buy 平均評等 1.3", "direction": "正", "impact": "華爾街高度看好"}, {"category": "新進機構", "data": "Situational Awareness LP 加碼 10.6M 股", "direction": "正", "impact": "大型基金建倉"}, {"category": "Float 比例", "data": "96.5% 流通", "direction": "中", "impact": "流動性充足"}], "foreign_flow": []}, "valuation": {"current_price": 15.97, "scenarios": [{"scenario": "bear", "eps_assumption": "2026E -1.20 (BTC 跌 + AI pivot 燒錢)", "pe_assumption": "P/S 3x (虧損改用營收倍數)", "target": 11.0, "trigger": "BTC < $80k + AI 訂單延後"}, {"scenario": "base", "eps_assumption": "2026E -0.51 (forward)", "pe_assumption": "P/S 6x (分析師中位)", "target": 20.0, "trigger": "BTC 維持 + AI 首約落地"}, {"scenario": "bull", "eps_assumption": "2027E 轉正 +0.30", "pe_assumption": "P/S 9x (HUT8 / IREN AI 倍數)", "target": 26.0, "trigger": "AI hosting 簽 hyperscaler 大單"}], "pe_history": null, "peer_comparison": [{"ticker": "CLSK", "name": "CleanSpark", "pe": -7.7, "pb": 4.16, "yield": 0}, {"ticker": "MARA", "name": "Marathon Digital", "pe": -8.5, "pb": 1.2, "yield": 0}, {"ticker": "RIOT", "name": "Riot Platforms", "pe": -6.2, "pb": 1.4, "yield": 0}, {"ticker": "IREN", "name": "IREN Limited", "pe": -15.0, "pb": 2.8, "yield": 0}, {"ticker": "HUT", "name": "Hut 8 Mining", "pe": -10.0, "pb": 2.1, "yield": 0}], "eps_forecast": [{"year": "2023A", "bear": -1.5, "base": -1.5, "bull": -1.5}, {"year": "2024A", "bear": -2.08, "base": -2.08, "bull": -2.08}, {"year": "2025E", "bear": -1.2, "base": -0.51, "bull": -0.2}, {"year": "2026E", "bear": -1.5, "base": -0.3, "bull": 0.1}, {"year": "2027E", "bear": -0.8, "base": 0.2, "bull": 0.5}]}, "industry": {"revenue_mix": [{"segment": "比特幣自挖礦 (Hash 收益)", "pct": 90, "trend": "flat", "note": "主力營收來源，受 BTC 價格與 hashrate 雙重影響"}, {"segment": "AI/HPC 主機代管", "pct": 5, "trend": "up", "note": "新事業線，2026 重點 pivot 方向"}, {"segment": "能源管理 / 軟體", "pct": 5, "trend": "flat", "note": "前身清潔能源業務殘留"}], "supply_chain": [{"tier": "upstream", "name": "Bitmain (S21 礦機)", "relation": "主要 ASIC 礦機供應商"}, {"tier": "upstream", "name": "電力公用事業 / Wyoming/喬治亞", "relation": "低成本電力合約"}, {"tier": "upstream", "name": "NVIDIA / AMD GPU", "relation": "AI hosting 算力供應"}, {"tier": "peer", "name": "MARA / RIOT / IREN / HUT8", "relation": "BTC 礦工同業"}, {"tier": "downstream", "name": "Hyperscaler / AI 新創", "relation": "AI hosting 潛在客戶"}], "growth_drivers": [{"driver": "AI 基礎設施 pivot", "status": "optionality", "horizon": "1-2年", "note": "招募 $20B deal banker，待首約簽訂"}, {"driver": "比特幣價格 + halving 後挖礦經濟", "status": "confirmed", "horizon": "短期", "note": "與 BTC 高度連動，beta > 2"}, {"driver": "Hashrate 持續擴張", "status": "confirmed", "horizon": "1年", "note": "新礦場上線提升市占"}, {"driver": "電力成本優勢", "status": "confirmed", "horizon": "長期", "note": "低於同業平均 2-3 cents/kWh"}], "lead_indicators": [{"indicator": "BTC 現貨價格", "current": "$100k+", "signal": "支撐挖礦獲利"}, {"indicator": "Network hashrate / difficulty", "current": "歷史高", "signal": "邊際獲利收斂"}, {"indicator": "AI hosting 首約進度", "current": "招募階段", "signal": "尚未落袋"}, {"indicator": "BTC 庫存帳面價值", "current": "$200M+ 帳上虧損", "signal": "需 BTC 反彈解套"}], "moat": "低電力成本 + 自有礦場 + 大規模 ASIC 部署 + 比特幣庫存策略；AI pivot 提供二次成長 optionality，但護城河尚未在 AI 端建立。"}, "bull_bear": {"bull_points": [{"text": "12 位分析師 strong_buy 共識，平均目標價 +28% upside", "weight": "高"}, {"text": "內部人 20 筆全買無賣，CEO 與總裁親自買進", "weight": "高"}, {"text": "AI 基礎設施 pivot + 招募 $20B deal 重量級銀行家", "weight": "高"}, {"text": "技術面多頭排列 + Supertrend/MACD/KD 三重共振", "weight": "中"}, {"text": "空單比 49.5% 偏高，逼空火種俱備", "weight": "中"}, {"text": "新基金 Situational Awareness LP 大幅加碼 10.6M 股", "weight": "中"}], "bear_points": [{"text": "F-Score 1/9 + Altman Z 0.84 (distress 區)，財務體質極弱", "weight": "高"}, {"text": "Q1 deepening losses + BTC 帳上虧損 > $200M", "weight": "高"}, {"text": "Revenue YoY -24.9% 衰退，毛利率轉負 -22.6%", "weight": "高"}, {"text": "ROE -34.8% / ROIC -323%，營運燒錢嚴重", "weight": "中"}, {"text": "AI pivot 尚無首約，純 optionality 故事溢價", "weight": "中"}, {"text": "價格距 MA60 +43.6% 過熱，短線拉回壓力", "weight": "低"}], "risks": [{"risk": "BTC 價格急跌", "severity": "高", "horizon": "短期", "description": "BTC 跌破 $80k 將觸發大幅減值與挖礦邊際虧損惡化"}, {"risk": "AI pivot 跳票", "severity": "高", "horizon": "長期", "description": "AI hosting 首約若 6 個月內未簽訂，溢價將快速 derate"}, {"risk": "增發股票稀釋", "severity": "中", "horizon": "短期", "description": "現金流為負 -135M，可能再次發行新股稀釋現有股東"}, {"risk": "監管收緊", "severity": "中", "horizon": "長期", "description": "美國能源/挖礦監管或加密貨幣稅制變動風險"}, {"risk": "Hashrate 競爭白熱化", "severity": "中", "horizon": "長期", "description": "Network difficulty 上行擠壓挖礦邊際利潤"}, {"risk": "短期過熱拉回", "severity": "低", "horizon": "短期", "description": "BB %B 109% 上軌外，技術面需消化"}], "recommendation": {"entry_zone": "14.04 - 14.24 美元", "stop_loss": "11.98 美元 (A. ATR 波動停損)", "position_size": "減碼 5 成", "strategy": "高 beta 投機股，分析師 + 內部人 + AI 故事三重催化但體質弱。RR 0.59 偏低，建議減碼 5 成等拉回 5MA-10MA 接，停損守 ATR 波動下緣，AI 首約簽約或 BTC 回穩再加碼。"}}};
+// 若 JS 執行失敗，把錯誤貼到畫面上（避免永遠 Loading）
+window.addEventListener('error', function(ev){
+  var root = document.getElementById('root');
+  if (root && root.textContent === 'Loading...') {
+    root.innerHTML = '<pre style="color:#f87171;padding:16px;white-space:pre-wrap;font-family:monospace;font-size:12px;">'
+      + '[Dashboard JS Error]\n' + (ev.message || '') + '\n' + (ev.filename||'') + ':' + (ev.lineno||'') + '\n'
+      + (ev.error && ev.error.stack ? ev.error.stack : '')
+      + '</pre>';
+  }
+});
+
+// 動態度量內容高度，透過 postMessage 通知 Streamlit parent iframe 調整高度
+// Streamlit 接收 `streamlit:setFrameHeight` 訊息自動 resize（components.v1 支援）
+function reportHeight() {
+  var h = Math.max(
+    document.documentElement.scrollHeight,
+    document.body ? document.body.scrollHeight : 0
+  );
+  if (h > 0 && window.parent) {
+    window.parent.postMessage({ type: 'streamlit:setFrameHeight', height: h + 40 }, '*');
+  }
+}
+// 首次 render 延遲 + resize + tab 切換時重量
+window.addEventListener('load', function() { setTimeout(reportHeight, 500); setTimeout(reportHeight, 2000); });
+window.addEventListener('resize', reportHeight);
+// 觀察 DOM 變動（tab 切換 / scenario 切換）自動重量
+var obs = new MutationObserver(function() { setTimeout(reportHeight, 150); });
+if (document.body) {
+  obs.observe(document.body, { childList: true, subtree: true, attributes: true });
+} else {
+  window.addEventListener('DOMContentLoaded', function() {
+    obs.observe(document.body, { childList: true, subtree: true, attributes: true });
+  });
+}
+</script>
+
+<script type="text/babel">
+const { useState } = React;
+const {
+  LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid,
+  Tooltip, Legend, ResponsiveContainer, ReferenceLine, Area, AreaChart,
+  ComposedChart, Cell
+} = Recharts;
+
+const COLORS = {
+  bear: "#ef4444", base: "#f59e0b", bull: "#22c55e",
+  accent: "#38bdf8", gold: "#fbbf24",
+  text: "#e2e8f0", muted: "#94a3b8",
+  bg: "#0a0f1e", card: "#111827", border: "#1e3a5f",
+};
+
+const TABS = ["📊 總覽", "📈 技術+籌碼", "💰 估值", "🏭 產業", "⚖️ 多空+風險"];
+
+function Card({ children, className = "" }) {
+  return <div className={"card " + className}>{children}</div>;
+}
+
+function Badge({ children, color = "sky" }) {
+  const map = {
+    sky: "bg-sky-900/40 text-sky-300 border-sky-700/40",
+    red: "bg-red-900/40 text-red-300 border-red-700/40",
+    amber: "bg-amber-900/40 text-amber-300 border-amber-700/40",
+    emerald: "bg-emerald-900/40 text-emerald-300 border-emerald-700/40",
+    violet: "bg-violet-900/40 text-violet-300 border-violet-700/40",
+    slate: "bg-slate-800/60 text-slate-300 border-slate-600/40",
+  };
+  return <span className={`inline-block rounded border px-2 py-0.5 text-[10px] font-bold ${map[color] || map.sky}`}>{children}</span>;
+}
+
+function CustomTooltip({ active, payload, label }) {
+  if (!active || !payload || !payload.length) return null;
+  return (
+    <div className="custom-tooltip">
+      <p className="text-sky-300 font-bold">{label}</p>
+      {payload.map((p, i) => (
+        <p key={i} style={{ color: p.color }}>
+          {p.name}: <span className="font-bold">{typeof p.value === 'number' ? p.value.toLocaleString() : p.value}</span>
+        </p>
+      ))}
+    </div>
+  );
+}
+
+function verdictColor(v) {
+  if (!v) return "slate";
+  if (v.includes("強力買進") || v.includes("買進")) return "emerald";
+  if (v.includes("減碼") || v.includes("賣出")) return "red";
+  if (v.includes("觀望")) return "amber";
+  return "slate";
+}
+
+function directionColor(d) {
+  if (d === "bull" || d === "多" || d === "正") return "text-emerald-400";
+  if (d === "bear" || d === "空" || d === "負") return "text-red-400";
+  return "text-slate-300";
+}
+
+function severityColor(s) {
+  if (s === "高") return "red";
+  if (s === "中") return "amber";
+  return "slate";
+}
+
+function App() {
+  const D = window.REPORT_DATA;
+  const [tab, setTab] = useState(0);
+  const [epsScenario, setEpsScenario] = useState("base");
+
+  if (!D || !D.meta) {
+    return <div className="p-8 text-red-400">❌ REPORT_DATA 載入失敗，請檢查資料結構</div>;
+  }
+
+  // Schema version 相容性檢查：template 比 data 新 → OK（向下相容）；data 版本更新 → 顯示軟警告
+  const dataVer = D.schema_version || "0.0";
+  const tmplVer = window.TEMPLATE_SCHEMA_VERSION || "1.0";
+  const versionWarn = dataVer !== tmplVer && dataVer !== "0.0";  // "0.0" = 未標版本，視為舊版相容
+
+  const meta = D.meta || {};
+  const sum = D.summary || {};
+  const tech = D.technical || {};
+  const chip = D.chip || {};
+  const val = D.valuation || {};
+  const bb = D.bull_bear || {};
+  const ind = D.industry || {};
+
+  return (
+    <div className="min-h-screen">
+      {/* HEADER */}
+      <div className="border-b border-slate-800 bg-slate-950/60 backdrop-blur">
+        <div className="mx-auto max-w-6xl px-4 py-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h1 className="text-2xl font-black text-sky-300">
+                {meta.ticker} <span className="text-slate-300">{meta.name}</span>
+              </h1>
+              <p className="text-xs text-slate-500 mt-1">
+                {meta.market || "TW"} · 收盤 {meta.last_price?.toLocaleString() || "N/A"} ·
+                <span className={(meta.change_pct || 0) >= 0 ? " text-emerald-400" : " text-red-400"}>
+                  {" "}{(meta.change_pct || 0) >= 0 ? "+" : ""}{meta.change_pct?.toFixed(2) || "0"}%
+                </span>
+                {" "}· 生成於 {meta.generated_at || "N/A"}
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <Badge color={verdictColor(sum.verdict)}>{sum.verdict || "N/A"}</Badge>
+              <div className="text-right">
+                <p className="text-xs text-slate-500">觸發 / 趨勢</p>
+                <p className="text-sm font-bold text-sky-300">
+                  {sum.trigger_score?.toFixed(1) || "—"} / {sum.trend_score?.toFixed(0) || "—"}
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-xs text-slate-500">百分位</p>
+                <p className="text-sm font-bold text-amber-300">{sum.percentile?.toFixed(0) || "—"}%</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* TABS */}
+      <div className="mx-auto max-w-6xl px-4 pt-3">
+        <div className="flex gap-1 overflow-x-auto rounded-xl border border-slate-700/40 bg-slate-950/60 p-1">
+          {TABS.map((t, i) => (
+            <button key={i} onClick={() => setTab(i)}
+              className={`flex-shrink-0 rounded-lg px-4 py-2 text-xs font-semibold transition-all ${tab === i ? "bg-sky-600 text-white shadow-lg" : "text-slate-400 hover:text-slate-200"}`}>
+              {t}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* TAB CONTENT */}
+      <div className="mx-auto max-w-6xl px-4 pb-12 pt-3">
+
+        {/* ========== Tab 0: 總覽 ========== */}
+        {tab === 0 && (
+          <div className="grid gap-4">
+            {/* 一句話結論 + 核心論點 */}
+            <Card className="border-l-4 border-l-sky-500">
+              <h2 className="text-sm font-bold text-sky-300 mb-2">🎯 核心結論</h2>
+              <p className="text-sm text-slate-200 leading-relaxed mb-3">{sum.one_liner || "N/A"}</p>
+              <div className="grid gap-2">
+                {(sum.key_points || []).map((p, i) => (
+                  <div key={i} className="flex gap-2 text-xs">
+                    <span className={`font-bold ${directionColor(p.direction)}`}>
+                      {p.direction === "bull" ? "▲" : p.direction === "bear" ? "▼" : "●"}
+                    </span>
+                    <span className="text-slate-300">{p.text}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-3 flex flex-wrap gap-2 text-xs">
+                <Badge color="slate">信心: {sum.confidence || "—"}</Badge>
+                <Badge color="violet">Regime: {sum.regime || "—"}</Badge>
+                <Badge color="amber">倉位: {((sum.position_adjustment || 1) * 100).toFixed(0)}%</Badge>
+              </div>
+            </Card>
+
+            {/* 基本面 */}
+            <Card>
+              <h2 className="text-sm font-bold text-sky-300 mb-3">📋 基本面速覽</h2>
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                {[
+                  ["本益比", sum.fundamentals?.pe],
+                  ["EPS (TTM)", sum.fundamentals?.eps],
+                  ["殖利率", sum.fundamentals?.yield],
+                  ["淨值比", sum.fundamentals?.pb],
+                  ["ROE", sum.fundamentals?.roe],
+                ].map(([label, val], i) => (
+                  <div key={i} className="rounded-lg bg-slate-800/60 p-3">
+                    <p className="text-xs text-slate-500">{label}</p>
+                    <p className="text-lg font-bold text-sky-300">{val || "N/A"}</p>
+                  </div>
+                ))}
+              </div>
+            </Card>
+
+            {/* 月營收 */}
+            {sum.monthly_revenue && sum.monthly_revenue.length > 0 && (
+              <Card>
+                <h2 className="text-sm font-bold text-sky-300 mb-3">📅 近期月營收趨勢</h2>
+                <ResponsiveContainer width="100%" height={220}>
+                  <ComposedChart data={sum.monthly_revenue} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#1e3a5f" />
+                    <XAxis dataKey="month" tick={{ fill: "#94a3b8", fontSize: 10 }} />
+                    <YAxis yAxisId="left" tick={{ fill: "#94a3b8", fontSize: 10 }} />
+                    <YAxis yAxisId="right" orientation="right" tick={{ fill: "#94a3b8", fontSize: 10 }} />
+                    <Tooltip content={<CustomTooltip />} />
+                    <Bar yAxisId="left" dataKey="rev" name="月營收(億)" fill="#38bdf8" radius={[4, 4, 0, 0]} />
+                    <Line yAxisId="right" type="monotone" dataKey="yoy" name="年增率(%)" stroke="#f59e0b" strokeWidth={2} />
+                  </ComposedChart>
+                </ResponsiveContainer>
+              </Card>
+            )}
+
+            {/* EPS 情境 */}
+            {val.eps_forecast && val.eps_forecast.length > 0 && (
+              <Card>
+                <h2 className="text-sm font-bold text-sky-300 mb-3">📈 EPS 歷史 + 情境預測</h2>
+                <div className="flex gap-2 mb-3">
+                  {["bear", "base", "bull"].map(s => (
+                    <button key={s} onClick={() => setEpsScenario(s)}
+                      className={`rounded px-2 py-1 text-xs ${epsScenario === s ? "bg-sky-700 text-white" : "bg-slate-800 text-slate-400"}`}>
+                      {s === "bear" ? "🔴 熊" : s === "base" ? "🟡 基準" : "🟢 牛"}
+                    </button>
+                  ))}
+                </div>
+                <ResponsiveContainer width="100%" height={200}>
+                  <AreaChart data={val.eps_forecast} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#1e3a5f" />
+                    <XAxis dataKey="year" tick={{ fill: "#94a3b8", fontSize: 10 }} />
+                    <YAxis tick={{ fill: "#94a3b8", fontSize: 10 }} />
+                    <Tooltip content={<CustomTooltip />} />
+                    {epsScenario === "bear" && <Area type="monotone" dataKey="bear" name="熊市EPS" stroke={COLORS.bear} fill={COLORS.bear + "30"} />}
+                    {epsScenario === "base" && <Area type="monotone" dataKey="base" name="基準EPS" stroke={COLORS.base} fill={COLORS.base + "30"} />}
+                    {epsScenario === "bull" && <Area type="monotone" dataKey="bull" name="牛市EPS" stroke={COLORS.bull} fill={COLORS.bull + "30"} />}
+                  </AreaChart>
+                </ResponsiveContainer>
+              </Card>
+            )}
+          </div>
+        )}
+
+        {/* ========== Tab 1: 技術+籌碼 ========== */}
+        {tab === 1 && (
+          <div className="grid gap-4">
+            {/* 觸發訊號 */}
+            {tech.triggers && tech.triggers.length > 0 && (
+              <Card>
+                <h2 className="text-sm font-bold text-sky-300 mb-3">🔔 觸發訊號列表</h2>
+                <div className="grid gap-2 md:grid-cols-2">
+                  {tech.triggers.map((t, i) => (
+                    <div key={i} className={`rounded-lg border p-3 ${t.type === "bull" ? "border-emerald-700/40 bg-emerald-900/10" : t.type === "bear" ? "border-red-700/40 bg-red-900/10" : "border-slate-700/40 bg-slate-800/30"}`}>
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="text-xs text-slate-200 flex-1">{t.text}</p>
+                        <Badge color={t.type === "bull" ? "emerald" : t.type === "bear" ? "red" : "slate"}>
+                          {t.weight > 0 ? "+" : ""}{t.weight?.toFixed(1) || "—"}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            )}
+
+            {/* 技術指標表 */}
+            {tech.signals && tech.signals.length > 0 && (
+              <Card>
+                <h2 className="text-sm font-bold text-sky-300 mb-3">📊 技術面指標總覽</h2>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="border-b border-slate-700">
+                        <th className="py-2 text-left text-slate-400">類別</th>
+                        <th className="py-2 text-left text-slate-400">指標</th>
+                        <th className="py-2 text-right text-slate-400">數值</th>
+                        <th className="py-2 text-center text-slate-400">訊號</th>
+                        <th className="py-2 text-left text-slate-400">說明</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {tech.signals.map((r, i) => (
+                        <tr key={i} className="border-b border-slate-800/50">
+                          <td className="py-2 text-slate-400">{r.category}</td>
+                          <td className="py-2 text-slate-200">{r.indicator}</td>
+                          <td className="py-2 text-right text-sky-300 font-mono">{r.value}</td>
+                          <td className={`py-2 text-center font-bold ${directionColor(r.signal)}`}>{r.signal}</td>
+                          <td className="py-2 text-slate-400">{r.note}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </Card>
+            )}
+
+            {/* 籌碼面 */}
+            {chip.rows && chip.rows.length > 0 && (
+              <Card>
+                <h2 className="text-sm font-bold text-sky-300 mb-3">🎯 籌碼面分析</h2>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="border-b border-slate-700">
+                        <th className="py-2 text-left text-slate-400">類別</th>
+                        <th className="py-2 text-left text-slate-400">數據</th>
+                        <th className="py-2 text-center text-slate-400">方向</th>
+                        <th className="py-2 text-left text-slate-400">影響</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {chip.rows.map((r, i) => (
+                        <tr key={i} className="border-b border-slate-800/50">
+                          <td className="py-2 text-slate-400">{r.category}</td>
+                          <td className="py-2 text-slate-200">{r.data}</td>
+                          <td className={`py-2 text-center font-bold ${directionColor(r.direction)}`}>{r.direction}</td>
+                          <td className="py-2 text-slate-400">{r.impact}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </Card>
+            )}
+
+            {/* 外資買賣超 */}
+            {chip.foreign_flow && chip.foreign_flow.length > 0 && (
+              <Card>
+                <h2 className="text-sm font-bold text-sky-300 mb-3">💰 近期法人買賣超（張）</h2>
+                <ResponsiveContainer width="100%" height={180}>
+                  <BarChart data={chip.foreign_flow} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#1e3a5f" />
+                    <XAxis dataKey="date" tick={{ fill: "#94a3b8", fontSize: 10 }} />
+                    <YAxis tick={{ fill: "#94a3b8", fontSize: 10 }} />
+                    <Tooltip content={<CustomTooltip />} />
+                    <ReferenceLine y={0} stroke="#64748b" />
+                    <Bar dataKey="net" name="淨買超(張)" radius={[4, 4, 0, 0]}>
+                      {chip.foreign_flow.map((d, i) => (
+                        <Cell key={i} fill={d.net >= 0 ? COLORS.bull : COLORS.bear} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </Card>
+            )}
+          </div>
+        )}
+
+        {/* ========== Tab 2: 估值 ========== */}
+        {tab === 2 && (
+          <div className="grid gap-4">
+            {/* 3 情境矩陣 */}
+            {val.scenarios && val.scenarios.length > 0 && (
+              <Card>
+                <h2 className="text-sm font-bold text-sky-300 mb-3">📋 熊 / 基 / 牛情境目標價</h2>
+                <div className="grid gap-3 md:grid-cols-3">
+                  {val.scenarios.map((s, i) => {
+                    const isBull = s.scenario === "bull";
+                    const isBear = s.scenario === "bear";
+                    const bg = isBull ? "bg-emerald-900/20 border-emerald-700/40" : isBear ? "bg-red-900/20 border-red-700/40" : "bg-amber-900/20 border-amber-700/40";
+                    const txt = isBull ? "text-emerald-300" : isBear ? "text-red-300" : "text-amber-300";
+                    const label = isBull ? "🟢 牛市" : isBear ? "🔴 熊市" : "🟡 基準";
+                    const upside = val.current_price ? ((s.target - val.current_price) / val.current_price * 100).toFixed(1) : null;
+                    return (
+                      <div key={i} className={`rounded-xl border p-4 ${bg}`}>
+                        <p className={`text-xs font-bold ${txt} mb-2`}>{label}</p>
+                        <p className="text-3xl font-black text-slate-100 mb-1">{s.target?.toLocaleString()}</p>
+                        <p className="text-xs text-slate-400">元</p>
+                        {upside && (
+                          <p className={`text-xs mt-2 ${upside >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+                            {upside >= 0 ? "↑" : "↓"} {Math.abs(upside)}%
+                          </p>
+                        )}
+                        <div className="mt-3 border-t border-slate-700 pt-2 text-[10px] text-slate-400 space-y-1">
+                          <p>EPS: {s.eps_assumption}</p>
+                          <p>PE: {s.pe_assumption}</p>
+                          <p className="text-slate-500 italic">{s.trigger}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                {val.current_price && (
+                  <p className="text-xs text-slate-500 mt-3">現價: <span className="text-sky-300 font-bold">{val.current_price.toLocaleString()} 元</span></p>
+                )}
+              </Card>
+            )}
+
+            {/* 本益比河流 */}
+            {val.pe_history && (
+              <Card>
+                <h2 className="text-sm font-bold text-sky-300 mb-3">📉 本益比區間定位</h2>
+                <div className="grid grid-cols-4 gap-3 text-center">
+                  <div><p className="text-xs text-slate-500">歷史低</p><p className="text-xl font-bold text-emerald-400">{val.pe_history.low?.toFixed(1)}x</p></div>
+                  <div><p className="text-xs text-slate-500">中位數</p><p className="text-xl font-bold text-amber-400">{val.pe_history.median?.toFixed(1)}x</p></div>
+                  <div><p className="text-xs text-slate-500">當前</p><p className="text-xl font-bold text-sky-400">{val.pe_history.current?.toFixed(1)}x</p></div>
+                  <div><p className="text-xs text-slate-500">歷史高</p><p className="text-xl font-bold text-red-400">{val.pe_history.high?.toFixed(1)}x</p></div>
+                </div>
+              </Card>
+            )}
+
+            {/* 同業比較 */}
+            {val.peer_comparison && val.peer_comparison.length > 0 && (
+              <Card>
+                <h2 className="text-sm font-bold text-sky-300 mb-3">👥 同業估值比較</h2>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="border-b border-slate-700">
+                        <th className="py-2 text-left text-slate-400">代號</th>
+                        <th className="py-2 text-left text-slate-400">名稱</th>
+                        <th className="py-2 text-right text-slate-400">PE</th>
+                        <th className="py-2 text-right text-slate-400">PB</th>
+                        <th className="py-2 text-right text-slate-400">殖利率</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {val.peer_comparison.map((p, i) => (
+                        <tr key={i} className={`border-b border-slate-800/50 ${p.ticker === meta.ticker ? "bg-sky-900/20" : ""}`}>
+                          <td className={`py-2 ${p.ticker === meta.ticker ? "text-sky-300 font-bold" : "text-slate-300"}`}>{p.ticker}</td>
+                          <td className="py-2 text-slate-400">{p.name}</td>
+                          <td className="py-2 text-right text-amber-300 font-mono">{p.pe?.toFixed(1) || "—"}</td>
+                          <td className="py-2 text-right text-sky-300 font-mono">{p.pb?.toFixed(2) || "—"}</td>
+                          <td className="py-2 text-right text-emerald-300 font-mono">{p.yield ? p.yield.toFixed(2) + "%" : "—"}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </Card>
+            )}
+          </div>
+        )}
+
+        {/* ========== Tab 3: 產業 ========== */}
+        {tab === 3 && (
+          <div className="grid gap-4">
+            {/* 護城河摘要 */}
+            {ind.moat && (
+              <Card className="border-l-4 border-l-violet-500">
+                <h2 className="text-sm font-bold text-violet-300 mb-2">🏰 護城河</h2>
+                <p className="text-sm text-slate-200">{ind.moat}</p>
+              </Card>
+            )}
+
+            {/* 營收結構 */}
+            {ind.revenue_mix && ind.revenue_mix.length > 0 && (
+              <Card>
+                <h2 className="text-sm font-bold text-sky-300 mb-3">📦 產品/營收結構</h2>
+                <table className="w-full text-xs">
+                  <thead><tr className="text-slate-500 border-b border-slate-700">
+                    <th className="py-2 text-left">產品線</th>
+                    <th className="py-2 text-right">佔比</th>
+                    <th className="py-2 text-center">趨勢</th>
+                    <th className="py-2 text-left pl-4">說明</th>
+                  </tr></thead>
+                  <tbody>
+                    {ind.revenue_mix.map((r, i) => (
+                      <tr key={i} className="border-b border-slate-800/50">
+                        <td className="py-2 text-slate-200 font-medium">{r.segment}</td>
+                        <td className="py-2 text-right text-slate-300">{r.pct}%</td>
+                        <td className="py-2 text-center">{r.trend === "up" ? <span className="text-emerald-400">↑</span> : r.trend === "down" ? <span className="text-red-400">↓</span> : <span className="text-slate-500">→</span>}</td>
+                        <td className="py-2 text-slate-400 pl-4">{r.note}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </Card>
+            )}
+
+            <div className="grid gap-4 md:grid-cols-2">
+              {/* 供應鏈 */}
+              {ind.supply_chain && ind.supply_chain.length > 0 && (
+                <Card>
+                  <h2 className="text-sm font-bold text-sky-300 mb-3">🔗 供應鏈</h2>
+                  <div className="grid gap-2">
+                    {ind.supply_chain.map((s, i) => (
+                      <div key={i} className="flex gap-2 text-xs rounded-lg bg-slate-800/50 p-2">
+                        <Badge color={s.tier === "upstream" ? "amber" : s.tier === "downstream" ? "sky" : "violet"}>
+                          {s.tier === "upstream" ? "上游" : s.tier === "downstream" ? "下游" : "同業"}
+                        </Badge>
+                        <div className="flex-1">
+                          <span className="text-slate-200 font-medium">{s.name}</span>
+                          <span className="text-slate-500 ml-2">{s.relation}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              )}
+
+              {/* 領先指標 */}
+              {ind.lead_indicators && ind.lead_indicators.length > 0 && (
+                <Card>
+                  <h2 className="text-sm font-bold text-sky-300 mb-3">🔍 領先指標</h2>
+                  <div className="grid gap-2">
+                    {ind.lead_indicators.map((l, i) => (
+                      <div key={i} className="rounded-lg bg-slate-800/50 p-3 text-xs">
+                        <p className="text-slate-200 font-medium">{l.indicator}</p>
+                        <div className="flex gap-3 mt-1">
+                          <span className="text-slate-400">現況: {l.current}</span>
+                          <span className="text-amber-300">訊號: {l.signal}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              )}
+            </div>
+
+            {/* 成長驅動力 */}
+            {ind.growth_drivers && ind.growth_drivers.length > 0 && (
+              <Card>
+                <h2 className="text-sm font-bold text-sky-300 mb-3">🚀 成長驅動力</h2>
+                <div className="grid gap-2">
+                  {ind.growth_drivers.map((g, i) => (
+                    <div key={i} className="flex gap-3 rounded-lg bg-slate-800/50 p-3 text-xs">
+                      <div className="flex flex-col items-center gap-1">
+                        <Badge color={g.status === "confirmed" ? "emerald" : "amber"}>
+                          {g.status === "confirmed" ? "已確認" : "潛在"}
+                        </Badge>
+                        <span className="text-[10px] text-slate-500">{g.horizon}</span>
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-bold text-slate-200">{g.driver}</p>
+                        <p className="text-slate-400 mt-1">{g.note}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            )}
+          </div>
+        )}
+
+        {/* ========== Tab 4: 多空+風險 ========== */}
+        {tab === 4 && (
+          <div className="grid gap-4">
+            {/* 多空對照 */}
+            <div className="grid gap-4 md:grid-cols-2">
+              <Card className="border-l-4 border-l-emerald-500">
+                <h2 className="text-sm font-bold text-emerald-300 mb-3">🟢 看多論點</h2>
+                <div className="grid gap-2">
+                  {(bb.bull_points || []).map((p, i) => (
+                    <div key={i} className="flex gap-2 text-xs">
+                      <span className="text-emerald-400 font-bold">▲</span>
+                      <div className="flex-1">
+                        <p className="text-slate-200">{p.text}</p>
+                        {p.weight && <p className="text-[10px] text-slate-500 mt-0.5">權重: {p.weight}</p>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+
+              <Card className="border-l-4 border-l-red-500">
+                <h2 className="text-sm font-bold text-red-300 mb-3">🔴 看空論點</h2>
+                <div className="grid gap-2">
+                  {(bb.bear_points || []).map((p, i) => (
+                    <div key={i} className="flex gap-2 text-xs">
+                      <span className="text-red-400 font-bold">▼</span>
+                      <div className="flex-1">
+                        <p className="text-slate-200">{p.text}</p>
+                        {p.weight && <p className="text-[10px] text-slate-500 mt-0.5">權重: {p.weight}</p>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            </div>
+
+            {/* 風險排序 */}
+            {bb.risks && bb.risks.length > 0 && (
+              <Card className="border border-amber-700/40 bg-amber-900/10">
+                <h2 className="text-sm font-bold text-amber-300 mb-3">⚠️ 風險排序（按衝擊 × 機率）</h2>
+                <div className="grid gap-2">
+                  {bb.risks.map((r, i) => (
+                    <div key={i} className="flex gap-3 rounded-lg bg-slate-800/50 p-3 text-xs">
+                      <div className="flex flex-col items-center gap-1">
+                        <Badge color={severityColor(r.severity)}>{r.severity}</Badge>
+                        <Badge color="slate">{r.horizon}</Badge>
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-bold text-slate-200">{r.risk}</p>
+                        <p className="text-slate-400 mt-1">{r.description}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            )}
+
+            {/* 投資建議 */}
+            {bb.recommendation && (
+              <Card className="border-l-4 border-l-sky-500">
+                <h2 className="text-sm font-bold text-sky-300 mb-3">🎯 投資建議</h2>
+                <div className="grid gap-3 md:grid-cols-2">
+                  {[
+                    ["建議進場區間", bb.recommendation.entry_zone],
+                    ["停損價位", bb.recommendation.stop_loss],
+                    ["建議部位", bb.recommendation.position_size],
+                    ["操作策略", bb.recommendation.strategy],
+                  ].map(([label, val], i) => (
+                    <div key={i} className="rounded-lg bg-slate-800/60 p-3">
+                      <p className="text-xs text-slate-500">{label}</p>
+                      <p className="text-sm text-slate-200 mt-1">{val || "N/A"}</p>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            )}
+          </div>
+        )}
+
+      </div>
+
+      {versionWarn && (
+        <div className="mb-4 px-4 py-2 bg-amber-900/30 border border-amber-700/40 rounded text-xs text-amber-300">
+          ⚠️ Schema 版本不符：資料 v{dataVer} vs 模板 v{tmplVer}。部分欄位可能顯示不正常，建議重跑 AI 報告取得最新資料。
+        </div>
+      )}
+
+      <footer className="border-t border-slate-800 py-6 text-center text-xs text-slate-600">
+        <p>StockPulse AI Dashboard · {meta.ticker} · 生成於 {meta.generated_at}</p>
+        <p className="mt-1 text-slate-700">僅供參考，不構成任何投資建議 · schema v{dataVer === "0.0" ? "legacy" : dataVer} · tmpl v{tmplVer}</p>
+      </footer>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
