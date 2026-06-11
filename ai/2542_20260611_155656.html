@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StockPulse Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root {
+  --bg: #0E0E10;
+  --paper: #17171A;
+  --ink: #EDE6D5;
+  --ink2: #A8A192;
+  --ink3: #9E9684;
+  --rule: #EDE6D5;
+  --line: #2D2A24;
+  --bull: #E07B7B;
+  --bull-bg: #2A1818;
+  --bear: #5FB97A;
+  --bear-bg: #18271E;
+  --neutral: #B0A082;
+  --accent: #D9A93F;
+  --accent-bg: #2A2418;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); font-family: 'DM Sans', system-ui, sans-serif; color: var(--ink); -webkit-font-smoothing: antialiased; line-height: 1.5; }
+.container { max-width: 1080px; margin: 0 auto; background: var(--bg); }
+.font-display { font-family: 'Fraunces', Georgia, serif; }
+.num-mono { font-family: 'JetBrains Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+.smallcaps { font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink3); font-weight: 500; }
+.rule-thick { border-top: 2px solid var(--rule); }
+.rule-thin { border-top: 0.5px solid var(--line); }
+.hover-row:hover { background: var(--paper); }
+button { font-family: inherit; cursor: pointer; }
+
+/* HEADER */
+.header { position: relative; padding: 40px 48px 32px; background: var(--paper); border-bottom: 2px solid var(--rule); }
+.header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; gap: 24px; }
+.header-meta-tag { display: flex; align-items: center; gap: 12px; margin-bottom: 4px; }
+.company-name { font-family: 'Fraunces', Georgia, serif; font-size: 56px; font-weight: 400; line-height: 1; letter-spacing: -0.02em; }
+.ticker-row { margin-top: 8px; display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; }
+.ticker { font-family: 'JetBrains Mono', monospace; font-size: 18px; color: var(--ink2); font-weight: 500; }
+.price-block { text-align: right; }
+.price { font-family: 'JetBrains Mono', monospace; font-size: 52px; font-weight: 500; line-height: 1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.price-change { font-family: 'JetBrains Mono', monospace; font-size: 16px; margin-top: 4px; font-weight: 500; }
+.one-liner { padding-top: 20px; margin-top: 8px; border-top: 2px solid var(--rule); }
+.one-liner p { font-family: 'Fraunces', Georgia, serif; font-size: 22px; line-height: 1.4; font-style: italic; color: var(--ink); font-weight: 400; max-width: 720px; }
+
+/* VERDICT */
+.verdict-block { display: grid; grid-template-columns: 1fr 1.4fr; gap: 0; border-bottom: 2px solid var(--rule); }
+.verdict-left { padding: 32px 48px; border-right: 0.5px solid var(--line); background: var(--paper); }
+.verdict-text { font-family: 'Fraunces', Georgia, serif; font-size: 64px; font-weight: 500; line-height: 1; margin-bottom: 8px; }
+.verdict-meta { display: flex; gap: 24px; font-size: 13px; color: var(--ink2); flex-wrap: wrap; }
+.verdict-meta strong { color: var(--ink); font-weight: 500; }
+.verdict-right { padding: 32px 48px; background: var(--bg); display: flex; flex-direction: column; gap: 18px; justify-content: center; }
+.score-bar { width: 100%; }
+.score-bar-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+.score-bar-value { font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 500; }
+.score-track { position: relative; height: 6px; background: var(--line); }
+.score-midline { position: absolute; left: 50%; top: -3px; bottom: -3px; width: 1px; background: var(--ink2); }
+.score-fill { position: absolute; top: 0; bottom: 0; }
+.pct-track { position: relative; height: 6px; background: var(--line); }
+.pct-fill { position: absolute; top: 0; bottom: 0; left: 0; background: var(--accent); }
+
+/* KEY POINTS */
+.key-block { display: grid; grid-template-columns: 1.4fr 1fr; gap: 0; border-bottom: 2px solid var(--rule); }
+.key-left { padding: 28px 48px; border-right: 0.5px solid var(--line); }
+.key-right { padding: 28px 48px; background: var(--paper); }
+.key-list { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
+.key-item { display: flex; align-items: flex-start; gap: 12px; padding-bottom: 10px; }
+.key-item:not(:last-child) { border-bottom: 0.5px solid var(--line); }
+.key-item p { font-size: 14px; line-height: 1.5; color: var(--ink); }
+.arrow { display: inline-block; font-weight: bold; font-size: 14px; line-height: 1.2; margin-top: 2px; }
+.arrow.bull { color: var(--bull); }
+.arrow.bear { color: var(--bear); }
+.arrow.neutral { color: var(--neutral); }
+.fundamentals { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 24px; margin-top: 16px; }
+.fund-key { font-size: 12px; color: var(--ink3); margin-bottom: 2px; }
+.fund-val { font-family: 'JetBrains Mono', monospace; font-size: 17px; font-weight: 500; color: var(--ink); font-variant-numeric: tabular-nums; }
+
+/* TABS */
+.tab-bar { position: sticky; top: 0; z-index: 10; background: var(--bg); border-bottom: 2px solid var(--rule); padding: 0 48px; }
+.tab-list { display: flex; gap: 28px; }
+.tab-btn { padding: 16px 0; background: none; border: none; border-bottom: 2px solid transparent; margin-bottom: -2px; font-family: 'DM Sans'; font-size: 14px; font-weight: 400; color: var(--ink3); letter-spacing: 0.02em; transition: all 0.15s ease; }
+.tab-btn:hover { color: var(--ink); }
+.tab-btn.active { color: var(--ink); font-weight: 600; border-bottom-color: var(--ink); }
+.tab-btn .eng { font-size: 12px; color: var(--ink3); margin-left: 4px; }
+
+/* SECTIONS */
+.section { padding: 40px 48px; animation: fadeIn 0.25s ease-out; }
+.section.alt { background: var(--paper); }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+.section-header { margin-bottom: 24px; padding-bottom: 12px; border-bottom: 2px solid var(--rule); display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; }
+.section-num { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--ink3); font-weight: 500; }
+.section-title { font-family: 'Fraunces', Georgia, serif; font-size: 32px; font-weight: 500; letter-spacing: -0.01em; }
+.section-eng { margin-left: auto; }
+
+/* TECHNICAL */
+.tech-grid { display: grid; grid-template-columns: 1fr 1.4fr; gap: 36px; }
+.trigger-list .trigger { display: flex; align-items: center; gap: 12px; padding: 10px 12px; margin-bottom: 4px; }
+.trigger.bull { background: var(--bull-bg); border-left: 3px solid var(--bull); }
+.trigger.bear { background: var(--bear-bg); border-left: 3px solid var(--bear); }
+.trigger.neutral { background: var(--paper); border-left: 3px solid var(--neutral); }
+.trigger-weight { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 600; min-width: 42px; }
+.trigger.bull .trigger-weight { color: var(--bull); }
+.trigger.bear .trigger-weight { color: var(--bear); }
+.trigger.neutral .trigger-weight { color: var(--neutral); }
+.trigger-text { font-size: 13px; line-height: 1.4; flex: 1; }
+
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead tr { border-bottom: 1.5px solid var(--rule); }
+th { text-align: left; padding: 8px 6px; font-size: 12px; color: var(--ink3); letter-spacing: 0.1em; text-transform: uppercase; font-weight: 500; }
+th.center { text-align: center; }
+th.right { text-align: right; }
+tbody tr { border-bottom: 0.5px solid var(--line); }
+td { padding: 10px 6px; }
+td.center { text-align: center; }
+td.right { text-align: right; }
+.signal-pill { display: inline-block; min-width: 24px; padding: 2px 8px; color: #0E0E10; font-size: 12px; font-weight: 600; letter-spacing: 0.05em; }
+.signal-pill.bull, .signal-pill.dyu { background: var(--bull); }
+.signal-pill.bear, .signal-pill.kong { background: var(--bear); }
+.signal-pill.neutral, .signal-pill.zhong { background: var(--neutral); }
+
+.notes-strip { margin-top: 14px; padding: 12px 14px; background: var(--paper); border-left: 3px solid var(--line); font-size: 12px; color: var(--ink2); line-height: 1.6; }
+
+/* CHIP */
+.chip-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.chip-card { padding: 16px 18px; background: var(--bg); }
+.section.alt .chip-card { background: var(--bg); }
+.chip-card.pos { border-top: 2px solid var(--bull); }
+.chip-card.neg { border-top: 2px solid var(--bear); }
+.chip-card.mid { border-top: 2px solid var(--neutral); }
+.chip-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.chip-head .smallcaps.pos { color: var(--bull); }
+.chip-head .smallcaps.neg { color: var(--bear); }
+.chip-head .smallcaps.mid { color: var(--neutral); }
+.chip-data { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 500; margin-bottom: 6px; color: var(--ink); }
+.chip-impact { font-size: 12px; color: var(--ink2); line-height: 1.4; }
+
+/* VALUATION */
+.scenarios { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 36px; }
+.scenario { background: var(--paper); padding: 24px 22px; }
+.scenario.bear { border-top: 3px solid var(--bear); }
+.scenario.base { border-top: 3px solid var(--accent); }
+.scenario.bull { border-top: 3px solid var(--bull); }
+.scenario .smallcaps { margin-bottom: 16px; }
+.scenario.bear .smallcaps { color: var(--bear); }
+.scenario.base .smallcaps { color: var(--accent); }
+.scenario.bull .smallcaps { color: var(--bull); }
+.scenario-price { font-family: 'Fraunces', Georgia, serif; font-size: 44px; font-weight: 500; color: var(--ink); line-height: 1; margin-bottom: 4px; font-variant-numeric: tabular-nums; }
+.scenario-upside { font-family: 'JetBrains Mono', monospace; font-size: 13px; margin-bottom: 16px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.scenario-detail { font-size: 12px; color: var(--ink2); line-height: 1.6; }
+.scenario-detail strong { color: var(--ink); font-weight: 500; }
+.scenario-trigger { margin-top: 10px; padding-top: 10px; border-top: 0.5px solid var(--line); color: var(--ink); font-style: italic; font-weight: 500; }
+
+.val-bottom { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+.chart-wrap { height: 240px; background: var(--paper); padding: 16px 8px 8px; position: relative; }
+.peer-self { background: var(--accent-bg); }
+.peer-self td:first-child { font-weight: 600; }
+
+/* INDUSTRY */
+.ind-top { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; margin-bottom: 32px; }
+.revmix-item { margin-bottom: 14px; }
+.revmix-head { display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 14px; }
+.revmix-name { font-weight: 500; }
+.revmix-pct { font-family: 'JetBrains Mono', monospace; font-weight: 600; font-variant-numeric: tabular-nums; }
+.revmix-bar { height: 8px; background: var(--line); }
+.revmix-bar-fill { height: 100%; }
+.revmix-bar-fill.up { background: var(--bull); }
+.revmix-bar-fill.down { background: var(--bear); }
+.revmix-bar-fill.flat { background: var(--neutral); }
+.revmix-note { font-size: 12px; color: var(--ink2); margin-top: 4px; line-height: 1.4; }
+
+.supply-item { display: flex; gap: 12px; padding: 8px 0; border-bottom: 0.5px solid var(--line); }
+.supply-item:last-child { border-bottom: none; }
+.supply-tier { font-size: 12px; font-weight: 600; min-width: 32px; padding-top: 2px; letter-spacing: 0.05em; }
+.supply-tier.upstream { color: var(--accent); }
+.supply-tier.peer { color: var(--neutral); }
+.supply-tier.downstream { color: var(--bull); }
+.supply-name { font-size: 13px; font-weight: 500; margin-bottom: 2px; }
+.supply-relation { font-size: 12px; color: var(--ink2); line-height: 1.4; }
+
+.drivers { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 28px; }
+.driver { background: var(--bg); padding: 14px 16px; }
+.driver.confirmed { border-left: 3px solid var(--bull); }
+.driver.optionality { border-left: 3px solid var(--accent); }
+.driver-head { display: flex; justify-content: space-between; margin-bottom: 4px; gap: 8px; }
+.driver-name { font-size: 13px; font-weight: 500; }
+.driver-status { font-family: 'JetBrains Mono', monospace; font-size: 12px; padding: 2px 6px; color: #0E0E10; font-weight: 500; white-space: nowrap; }
+.driver-status.confirmed { background: var(--bull); }
+.driver-status.optionality { background: var(--accent); }
+.driver-horizon { font-size: 12px; color: var(--ink3); margin-bottom: 4px; }
+.driver-note { font-size: 12px; color: var(--ink2); line-height: 1.4; }
+
+.moat-box { padding: 20px 24px; background: var(--bg); border-left: 4px solid var(--accent); }
+.moat-box .smallcaps { margin-bottom: 8px; color: var(--accent); }
+.moat-text { font-family: 'Fraunces', Georgia, serif; font-size: 16px; line-height: 1.6; font-style: italic; color: var(--ink); }
+
+/* BULL/BEAR */
+.bb-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--line); margin-bottom: 32px; }
+.bb-bull { padding: 24px 28px; border-right: 1px solid var(--line); background: var(--bull-bg); }
+.bb-bear { padding: 24px 28px; background: var(--bear-bg); }
+.bb-head { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+.bb-head h3 { font-family: 'Fraunces', Georgia, serif; font-size: 22px; font-weight: 500; }
+.bb-head.bull h3 { color: var(--bull); }
+.bb-head.bear h3 { color: var(--bear); }
+.bb-icon { font-size: 20px; font-weight: bold; }
+.bb-icon.bull { color: var(--bull); }
+.bb-icon.bear { color: var(--bear); }
+.bb-point { display: flex; gap: 10px; padding: 10px 0; align-items: flex-start; }
+.bb-point:not(:last-child) { border-bottom: 0.5px solid var(--line); }
+.bb-weight { font-size: 12px; padding: 2px 6px; font-weight: 600; min-width: 22px; text-align: center; border: 1px solid; flex-shrink: 0; }
+.bb-weight.high { color: var(--bear); border-color: var(--bear); }
+.bb-weight.mid { color: var(--accent); border-color: var(--accent); }
+.bb-weight.low { color: var(--ink2); border-color: var(--ink3); }
+.bb-text { font-size: 13px; line-height: 1.5; flex: 1; color: var(--ink); }
+
+.risks { display: flex; flex-direction: column; gap: 8px; margin-bottom: 32px; }
+.risk-row { display: grid; grid-template-columns: 60px 1fr 80px; gap: 16px; padding: 14px 16px; background: var(--paper); align-items: center; }
+.risk-sev { font-size: 12px; padding: 3px 8px; color: #0E0E10; font-weight: 600; text-align: center; letter-spacing: 0.05em; }
+.risk-sev.high { background: var(--bear); }
+.risk-sev.mid { background: var(--accent); }
+.risk-sev.low { background: var(--neutral); }
+.risk-title { font-size: 14px; font-weight: 500; margin-bottom: 2px; }
+.risk-desc { font-size: 12px; color: var(--ink2); line-height: 1.4; }
+.risk-horizon { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--ink3); text-align: right; }
+
+.action-plan { background: #1F1B12; color: #EDE6D5; padding: 32px 36px; border: 1px solid #3A311E; }
+.ap-head { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+.ap-head .smallcaps { color: #D9CBA8; }
+.ap-icon { color: #D9CBA8; font-size: 18px; }
+.ap-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 24px; }
+.ap-label { font-size: 12px; color: #A89A78; margin-bottom: 6px; letter-spacing: 0.1em; text-transform: uppercase; }
+.ap-value { font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.ap-value.sl { color: #F4A8A8; }
+.ap-value.pos { color: #B8D9B8; }
+.ap-strategy { border-top: 0.5px solid #3A311E; padding-top: 18px; font-size: 14px; line-height: 1.7; color: #E6E0D0; font-family: 'Fraunces', serif; font-style: italic; }
+
+/* LEFT/RIGHT PLAYBOOK */
+.lr-block { margin-top: 32px; }
+.lr-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 14px; flex-wrap: wrap; }
+.lr-posture { font-size: 12px; color: var(--ink3); }
+.lr-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.lr-card { background: var(--paper); padding: 24px 26px; }
+.lr-card.left { border-top: 3px solid var(--bear); }
+.lr-card.right { border-top: 3px solid var(--bull); }
+.lr-card-title { font-family: 'Fraunces', Georgia, serif; font-size: 20px; font-weight: 500; margin-bottom: 2px; }
+.lr-card.left .lr-card-title { color: var(--bear); }
+.lr-card.right .lr-card-title { color: var(--bull); }
+.lr-card .smallcaps { margin-bottom: 12px; display: block; }
+.lr-narrative { font-size: 13px; color: var(--ink2); line-height: 1.6; margin-bottom: 14px; font-style: italic; }
+.lr-ladder-action { color: var(--bear); font-weight: 600; }
+.lr-line { display: flex; gap: 10px; padding: 9px 0; border-bottom: 0.5px solid var(--line); font-size: 13px; line-height: 1.5; }
+.lr-line:last-of-type { border-bottom: none; }
+.lr-line-label { font-weight: 600; white-space: nowrap; }
+.lr-foot { margin-top: 12px; font-size: 12px; color: var(--ink3); line-height: 1.7; }
+.lr-foot .warn { color: var(--bull); }
+
+/* FOOTER */
+.footer { padding: 24px 48px; border-top: 2px solid var(--rule); background: var(--paper); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+.footer-meta { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--ink3); }
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .header { padding: 24px 20px 20px; }
+  .header-top { flex-direction: column; }
+  .price-block { text-align: left; }
+  .company-name { font-size: 36px; }
+  .price { font-size: 36px; }
+  .verdict-block, .key-block { grid-template-columns: 1fr; }
+  .verdict-left, .verdict-right, .key-left, .key-right { padding: 20px; border-right: none; border-bottom: 0.5px solid var(--line); }
+  .verdict-text { font-size: 44px; }
+  .tab-bar { padding: 0 16px; overflow-x: auto; }
+  .tab-list { gap: 20px; white-space: nowrap; }
+  .section { padding: 24px 20px; }
+  .section-title { font-size: 24px; }
+  .tech-grid, .val-bottom, .ind-top, .bb-grid, .lr-grid { grid-template-columns: 1fr; gap: 24px; }
+  .bb-bull, .bb-bear { border-right: none; }
+  .bb-bear { border-top: 1px solid var(--line); }
+  .scenarios, .chip-grid, .drivers { grid-template-columns: 1fr; }
+  .ap-grid { grid-template-columns: 1fr; }
+  .risk-row { grid-template-columns: 50px 1fr; }
+  .risk-horizon { grid-column: 1 / -1; text-align: left; }
+  .footer { padding: 16px 20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ================================================================== -->
+<!--  ⬇⬇⬇  ONLY EDIT THIS BLOCK — REPLACE THE DATA OBJECT BELOW  ⬇⬇⬇   -->
+<!-- ================================================================== -->
+<script id="dashboard-data" type="application/json">
+{
+  "schema_version": "1.1",
+  "meta": {
+    "ticker": "2542.TW",
+    "name": "興富發",
+    "market": "TW",
+    "generated_at": "2026-06-11 14:30",
+    "last_price": 45.45,
+    "change_pct": 5.21
+  },
+  "summary": {
+    "verdict": "買進",
+    "confidence": "中",
+    "trigger_score": 5.78,
+    "trend_score": 5.0,
+    "percentile": 90.7,
+    "regime": "volatile",
+    "position_adjustment": 0.7,
+    "one_liner": "16 案逾千億交屋潮啟動，營收連 6 月暴增、殖利率 8.8%；爆量突破前高惟外資調節與高槓桿，宜七成倉順勢操作。",
+    "key_points": [
+      {"text": "2026 排定 16 案完工、總銷約 1,100 億元，4 月營收 71.7 億年增 4078%、連 6 個月成長", "direction": "bull"},
+      {"text": "擬配現金 4 元創近四年新高，殖利率 8.80%、Forward PE 7.2x 提供下檔保護", "direction": "bull"},
+      {"text": "爆量 3.6 倍突破波段前高，紅三兵＋投信連 5 日買超，大戶持股升至 65.1%", "direction": "bull"},
+      {"text": "外資近 5 日賣超 39,682 張、借券 5 日淨增 18,822 張，潛在空方賣壓", "direction": "bear"},
+      {"text": "D/E 3.01、Altman Z 0.86 高槓桿體質，央行信用管制未全面鬆綁、房市量縮", "direction": "bear"}
+    ],
+    "fundamentals": {
+      "pe": "13.98x",
+      "eps": "3.27 (TTM Est.)",
+      "yield": "8.80%",
+      "pb": "1.74x",
+      "roe": "13.77%"
+    },
+    "monthly_revenue": [
+      {"month": "2025-11", "rev": 44.61, "yoy": 43.3},
+      {"month": "2025-12", "rev": 79.61, "yoy": 233.8},
+      {"month": "2026-01", "rev": 47.61, "yoy": 2480.6},
+      {"month": "2026-02", "rev": 42.38, "yoy": 774.7},
+      {"month": "2026-03", "rev": 71.93, "yoy": 1537.7},
+      {"month": "2026-04", "rev": 71.67, "yoy": 4077.7}
+    ]
+  },
+  "technical": {
+    "triggers": [
+      {"type": "bull", "text": "Supertrend 多頭趨勢（支撐 40.97）", "weight": 1.0},
+      {"type": "bull", "text": "KD 黃金交叉／多方排列（K 69.0 > D 58.5）", "weight": 1.0},
+      {"type": "bull", "text": "爆量確認 RVOL 3.6x（z=2.9），EFI 資金異常流入 z=5.2，留意消息面", "weight": 1.0},
+      {"type": "bear", "text": "MACD 柱狀體翻綠（-0.05），短線動能稍歇", "weight": -1.0},
+      {"type": "bear", "text": "外資近 5 日賣超 39,682 張", "weight": -0.3},
+      {"type": "bear", "text": "投信近 5 日買超 47,248 張 → 系統過熱警報", "weight": -0.5},
+      {"type": "bear", "text": "借券 5 日淨增 +18,822 張（30 日均量的 +25.2%）", "weight": -0.6},
+      {"type": "bear", "text": "融資 5 日增 +33.0%，散戶追漲跡象", "weight": -0.3},
+      {"type": "bull", "text": "融資水位偏低（2.0%），籌碼乾淨", "weight": 0.2},
+      {"type": "bull", "text": "券資比 0.2% 極低，無空方軋平壓力", "weight": 0.2}
+    ],
+    "signals": [
+      {"category": "趨勢", "indicator": "MA5/20/60/120", "value": "43.33/43.12/39.15/38.67", "signal": "多", "note": "多頭排列，現價乖離 MA60 達 +16.1%"},
+      {"category": "趨勢", "indicator": "Supertrend", "value": "40.97（方向 +1）", "signal": "多", "note": "趨勢支撐位距現價約 9.9%"},
+      {"category": "趨勢", "indicator": "ADX/DMI", "value": "ADX 24.1 / DI+29.5 > DI-22.3", "signal": "多", "note": "趨勢成形中，方向偏多"},
+      {"category": "動能", "indicator": "MACD", "value": "0.934（Hist -0.048）", "signal": "中", "note": "柱狀體小幅翻綠，動能稍歇"},
+      {"category": "動能", "indicator": "KD", "value": "K 69.0 / D 58.5", "signal": "多", "note": "黃金交叉後多方排列，未達超買"},
+      {"category": "動能", "indicator": "RSI", "value": "59.7", "signal": "中", "note": "中性偏多，尚未過熱"},
+      {"category": "量能", "indicator": "RVOL / OBV", "value": "3.57x / 上升中", "signal": "多", "note": "爆量上攻，OBV 斜率 +228 萬股/日"},
+      {"category": "波動", "indicator": "BB %B / Width", "value": "116.0% / 8.21%", "signal": "中", "note": "收在上軌之外，短線乖離偏大"},
+      {"category": "型態", "indicator": "K 線型態", "value": "紅三兵 (3 Soldiers)", "signal": "多", "note": "連三紅，多方進場確認"},
+      {"category": "型態", "indicator": "Squeeze Momentum", "value": "2.34 (Expanding)", "signal": "多", "note": "動能擴張且持續加速"}
+    ]
+  },
+  "chip": {
+    "rows": [
+      {"category": "外資", "data": "近 5 日賣超 39,682 張，持股比 9.78%→8.65%", "direction": "負", "impact": "外資連 5 日調節，持股比下滑"},
+      {"category": "投信", "data": "近 5 日買超 47,248 張（日均逾 9 千張）", "direction": "正", "impact": "連續大買主導行情，惟系統示警過熱"},
+      {"category": "自營商", "data": "06-09 / 06-10 轉買 +92 / +1,149 張", "direction": "中", "impact": "由賣轉買，短線跟進訊號"},
+      {"category": "融資", "data": "餘額 8,149→11,057 張（5 日 +33%）", "direction": "負", "impact": "散戶追漲，惟使用率僅 2.0% 水位仍低"},
+      {"category": "借券", "data": "5 日淨增 +18,822 張（30 日均 +25.2%）", "direction": "負", "impact": "疑似空方布局或避險，留意賣壓"},
+      {"category": "融券/券資比", "data": "融券僅 25 張，券資比 0.2%", "direction": "中", "impact": "無空方軋平壓力，亦無軋空題材"},
+      {"category": "集保大戶", "data": ">200 張大戶持股 65.06%（4 週 +0.41pp）", "direction": "正", "impact": "大戶逢漲續增，籌碼趨於集中"},
+      {"category": "當沖", "data": "06-10 當沖 2,408 萬股（前日約 470 萬）", "direction": "中", "impact": "突破日投機熱度暴增，波動放大"}
+    ],
+    "foreign_flow": [
+      {"date": "06-04", "net": -10121},
+      {"date": "06-05", "net": -12786},
+      {"date": "06-08", "net": -9843},
+      {"date": "06-09", "net": -4852},
+      {"date": "06-10", "net": -2080}
+    ]
+  },
+  "valuation": {
+    "current_price": 45.45,
+    "scenarios": [
+      {"scenario": "bear", "eps_assumption": "2026E 6.90 元（單一分析師共識）", "pe_assumption": "5.8x（分析師目標價 40 元隱含）", "target": 40, "trigger": "信用管制續緊、交屋遞延、利率走高"},
+      {"scenario": "base", "eps_assumption": "2026E 6.90 元（共識）", "pe_assumption": "7.2x（現行 Forward PE）", "target": 50, "trigger": "16 案交屋如期認列＋4 元股利除息行情"},
+      {"scenario": "bull", "eps_assumption": "2026E 6.90 元（共識）", "pe_assumption": "7.8x（政策鬆綁重評，近 Fib 1.618 延伸）", "target": 54, "trigger": "信用管制鬆綁／新青安 2.0＋商辦需求轉強"}
+    ],
+    "pe_history": null,
+    "peer_comparison": [
+      {"ticker": "2542", "name": "興富發", "pe": 14.0, "pb": 1.74, "yield": 8.8},
+      {"ticker": "2539", "name": "櫻花建", "pe": 13.9, "pb": 2.51, "yield": 7.1},
+      {"ticker": "6177", "name": "達麗", "pe": 6.2, "pb": 1.73, "yield": 6.4},
+      {"ticker": "4907", "name": "富宇", "pe": 10.7, "pb": 1.66, "yield": 3.8},
+      {"ticker": "2107", "name": "厚生", "pe": 17.9, "pb": 0.59, "yield": 5.4}
+    ],
+    "eps_forecast": [
+      {"year": "2024A", "bear": 3.19, "base": 3.19, "bull": 3.19},
+      {"year": "2025A", "bear": 2.1, "base": 2.1, "bull": 2.1},
+      {"year": "2026E", "bear": 6.9, "base": 6.9, "bull": 6.9},
+      {"year": "2027E", "bear": 6.33, "base": 6.33, "bull": 6.33}
+    ]
+  },
+  "industry": {
+    "revenue_mix": [
+      {"segment": "住宅建案交屋（首購中小坪數為主）", "pct": 55, "trend": "up", "note": "依 2025 推案結構推估；六都精華區布局，2026 起進入交屋認列高峰"},
+      {"segment": "商辦／商用不動產", "pct": 44, "trend": "up", "note": "2025 商辦推案 820.8 億；內科、台中七期、亞灣指標案，AI 需求點火"},
+      {"segment": "營造、百貨、飯店等其他", "pct": 1, "trend": "flat", "note": "齊裕營造多承作集團案；百貨飯店為集團轉投資布局"}
+    ],
+    "supply_chain": [
+      {"tier": "upstream", "name": "齊裕營造（子公司）", "relation": "集團營造施工主力，建案工程發包垂直整合"},
+      {"tier": "upstream", "name": "鋼筋、水泥等原物料", "relation": "營建成本主要變數，造價高檔壓縮毛利率"},
+      {"tier": "peer", "name": "潤隆（1808）", "relation": "集團成員建設公司，推案與土地開發互補"},
+      {"tier": "peer", "name": "達麗（6177）、櫻花建（2539）", "relation": "中南部推案區域重疊度高之上市同業"},
+      {"tier": "downstream", "name": "海悅（2348）等代銷", "relation": "建案銷售通路夥伴，去化速度的關鍵"},
+      {"tier": "downstream", "name": "首購族與商辦置產買盤", "relation": "中小坪數剛性需求＋企業自用商辦需求"}
+    ],
+    "growth_drivers": [
+      {"driver": "2026-28 完工交屋高峰", "status": "confirmed", "horizon": "1-3年", "note": "2026 排定 16 案完工、總銷約 1,100 億；2026-28 年完工量估 700-790 億/年"},
+      {"driver": "高額股利政策", "status": "confirmed", "horizon": "短期", "note": "擬配現金 4 元創近四年高（超額配息），殖利率 8.8% 吸引存股買盤"},
+      {"driver": "央行信用管制鬆綁／新青安 2.0", "status": "optionality", "horizon": "2026H2", "note": "選舉年政策題材；央行已轉精準控管、第二戶貸款成數放寬至六成"},
+      {"driver": "商辦市場需求（AI 廠辦擴張）", "status": "optionality", "horizon": "1-2年", "note": "斥資 60 億購信義區商辦；科技業掃樓帶動商辦租購需求"}
+    ],
+    "lead_indicators": [
+      {"indicator": "六都建物買賣移轉棟數", "current": "2025 年 1-11 月年減 26.1%（8 年低量）", "signal": "量縮待回溫，觀察 2026 是否落底"},
+      {"indicator": "央行理監事會信用管制態度", "current": "2026 起貸款總量回歸銀行內控＋按月申報", "signal": "由硬性總量轉精準控管，尚未全面鬆綁"},
+      {"indicator": "月營收（交屋認列進度）", "current": "4 月 71.67 億、連 6 個月 YoY 成長", "signal": "下次 07-10 公布，驗證交屋動能"},
+      {"indicator": "完工建案銷售率", "current": "2025 完工案銷售率逾 9 成", "signal": "已售未認列充足，認列能見度高"}
+    ],
+    "moat": "全台推案規模最大建商之一，獵地與快速開發週轉能力強；集團垂直整合潤隆、齊裕營造，千億級在手案量保障中期營收能見度。"
+  },
+  "bull_bear": {
+    "bull_points": [
+      {"text": "2026 排定 16 案完工交屋、總銷約 1,100 億元，營收跳躍式成長能見度高", "weight": "高"},
+      {"text": "Forward PE 7.2x、PB 1.74x、殖利率 8.80%，估值與股息雙重下檔保護", "weight": "高"},
+      {"text": "擬配現金 4 元創近四年高（超額配息），並決議註銷庫藏股，回饋積極", "weight": "中"},
+      {"text": "爆量突破波段前高＋紅三兵，投信連 5 日買超、大戶持股 65.1% 續增", "weight": "中"},
+      {"text": "2025 完工案銷售率逾 9 成，已售未認列充足，認列風險低", "weight": "中"}
+    ],
+    "bear_points": [
+      {"text": "D/E 3.01、Altman Z 0.86 落於危險區，高槓桿對利率與去化高度敏感", "weight": "高"},
+      {"text": "外資近 5 日賣超 39,682 張、借券大增 18,822 張，潛在空方賣壓", "weight": "高"},
+      {"text": "央行信用管制未全面鬆綁，六都移轉棟數年減 26%，房市買氣仍凍", "weight": "中"},
+      {"text": "毛利率 33.4%→30.1% 下滑，讓利去化與營建成本壓縮利潤", "weight": "中"},
+      {"text": "僅 1 位分析師覆蓋、目標價 40 元低於現價，融資 5 日激增 33%", "weight": "中"},
+      {"text": "BB %B 達 116%、乖離 MA60 逾 16%，短線技術面過熱", "weight": "低"}
+    ],
+    "risks": [
+      {"risk": "高財務槓桿風險", "severity": "高", "horizon": "長期", "description": "D/E 3.01、Z-Score 0.86，房市急凍或利率走高將放大資金鏈壓力"},
+      {"risk": "政策與房市買氣風險", "severity": "高", "horizon": "短期", "description": "信用管制僅轉精準控管未鬆綁，量縮讓利恐拖累毛利與去化速度"},
+      {"risk": "借券空方賣壓", "severity": "中", "horizon": "短期", "description": "借券 5 日淨增 25.2%，技術過熱後易遭放空回殺、波動放大"},
+      {"risk": "交屋認列時程波動", "severity": "中", "horizon": "短期", "description": "營收高度倚賴完工交屋節奏，工程遞延將造成單月劇烈波動"},
+      {"risk": "毛利率下行", "severity": "中", "horizon": "長期", "description": "造價高檔與市場讓利競爭，毛利率已下滑 3.3 個百分點"}
+    ],
+    "recommendation": {
+      "entry_zone": "43.33 - 45.45 元 (積極操作 5MA-現價)",
+      "stop_loss": "42.89 元 (A. ATR 波動停損)",
+      "position_size": "減碼至 7 成倉位（volatile 制度 0.7x）",
+      "strategy": "週線強多劇本順勢沿 5MA 承接，ATR 科學停損、RR 3.09 具吸引力；惟 volatile 制度＋借券增加，倉位打七折防急殺回測。"
+    }
+  },
+  "left_right": {
+    "posture": "現價貼近/突破波段前高",
+    "narrative_left": "看好 2026-28 交屋高峰與 8.8% 殖利率的下檔保護，若隨大盤波動回測，依 Fib 階梯逆勢分批承接。",
+    "left_ladder": [
+      {"fib": "23.6%", "price": 43.1, "implied_pe": "6.8x", "action": "首批 1/4（前波高點 08-04）"},
+      {"fib": "38.2%", "price": 41.35, "implied_pe": "6.5x", "action": "加碼 1/4（前波低點 08-28）"},
+      {"fib": "50.0%", "price": 39.85, "implied_pe": "6.3x", "action": "加碼 1/4（前波低點 06-13）"},
+      {"fib": "61.8%", "price": 38.6, "implied_pe": "6.1x", "action": "末批 1/4（前波低點 06-23）"}
+    ],
+    "invalidation": "跌破 36.4（78.6%，前波低點 11-24）視為長多論述受損，左側部位全部停損出場",
+    "sizing_left": "分批各 1/4 倉位；總曝險上限 ≤ 投組 3-5%",
+    "narrative_right": "不預測拐點，等帶量站穩前高或洗盤後收復上彎 20MA 再進場，避免在 volatile 制度下追高接刀。",
+    "right_entries": [
+      {"label": "進場 A", "condition": "站穩 46.1 - 47.25 帶量突破 → 順勢看 49.42 / 53.64"},
+      {"label": "進場 B", "condition": "洗盤後重新收復上彎 20MA（現 43.12，回測不破前低）"}
+    ],
+    "catalysts": "2026-07-10 公布 6 月營收，驗證交屋認列動能；除權息行情（05-02 公告擬配現金 4 元，創近四年新高）",
+    "right_stop": "跌破 41.35（38.2% 結構頸線，前波低點 08-28）或失守上彎 20MA",
+    "right_trailing": "沿上彎 20MA 拖曳，避免急殺回吐",
+    "sizing_right": "盈虧比 ≥ 2 再進場，初始 1/4 倉位，確認趨勢再金字塔加碼"
+  }
+}
+</script>
+<!-- ================================================================== -->
+<!--  ⬆⬆⬆  END OF DATA BLOCK — DO NOT EDIT BELOW THIS LINE  ⬆⬆⬆        -->
+<!-- ================================================================== -->
+
+<div class="container">
+  <div id="app"></div>
+</div>
+
+<script>
+// ============================================================
+// StockPulse Dashboard — render engine (do not edit)
+// ============================================================
+const D = JSON.parse(document.getElementById('dashboard-data').textContent);
+
+const arrow = d => {
+  if (d === 'bull' || d === '正' || d === '多') return '<span class="arrow bull">↗</span>';
+  if (d === 'bear' || d === '負' || d === '空') return '<span class="arrow bear">↘</span>';
+  return '<span class="arrow neutral">—</span>';
+};
+
+const sigClass = s => s === '多' ? 'bull' : s === '空' ? 'bear' : 'neutral';
+const dirClass = d => d === '正' ? 'pos' : d === '負' ? 'neg' : 'mid';
+
+const fmtChange = pct => {
+  const up = pct >= 0;
+  return `<span style="color: ${up ? 'var(--bull)' : 'var(--bear)'};">${up ? '▲' : '▼'} ${up ? '+' : ''}${pct.toFixed(2)}%</span>`;
+};
+
+// HEADER
+function renderHeader() {
+  const m = D.meta, s = D.summary;
+  return `
+  <div class="header">
+    <div class="header-top">
+      <div>
+        <div class="header-meta-tag"><span class="smallcaps">${m.market} · 股票研究儀表板</span></div>
+        <h1 class="company-name">${m.name}</h1>
+        <div class="ticker-row">
+          <span class="ticker">${m.ticker}</span>
+          <span class="smallcaps">AS OF ${m.generated_at}</span>
+        </div>
+      </div>
+      <div class="price-block">
+        <div class="price">${m.market === 'TW' ? '' : '$'}${m.last_price.toFixed(2)}</div>
+        <div class="price-change">${fmtChange(m.change_pct)}</div>
+      </div>
+    </div>
+    <div class="one-liner"><p>"${s.one_liner}"</p></div>
+  </div>`;
+}
+
+// VERDICT
+function scoreBarHTML(value, label, min=-10, max=10) {
+  const pct = ((value - min) / (max - min)) * 100;
+  const isPos = value >= 0;
+  const fillStyle = isPos
+    ? `left: 50%; width: ${pct - 50}%; background: var(--bull);`
+    : `left: ${pct}%; width: ${50 - pct}%; background: var(--bear);`;
+  return `
+  <div class="score-bar">
+    <div class="score-bar-head">
+      <span class="smallcaps">${label}</span>
+      <span class="score-bar-value" style="color: ${isPos ? 'var(--bull)' : 'var(--bear)'};">${value > 0 ? '+' : ''}${value.toFixed(2)}</span>
+    </div>
+    <div class="score-track">
+      <div class="score-midline"></div>
+      <div class="score-fill" style="${fillStyle}"></div>
+    </div>
+  </div>`;
+}
+
+function renderVerdict() {
+  const s = D.summary;
+  const colorMap = { '強力買進': 'var(--bull)', '買進': 'var(--bull)', '觀望': 'var(--neutral)', '減碼': 'var(--bear)', '賣出': 'var(--bear)' };
+  const c = colorMap[s.verdict] || 'var(--neutral)';
+  return `
+  <div class="verdict-block">
+    <div class="verdict-left">
+      <div class="smallcaps" style="margin-bottom: 12px;">VERDICT</div>
+      <div class="verdict-text" style="color: ${c};">${s.verdict}</div>
+      <div class="verdict-meta">
+        <span>信心度 <strong>${s.confidence}</strong></span>
+        <span>市場制度 <strong>${s.regime}</strong></span>
+        <span>建議倉位 <strong>${s.position_adjustment}x</strong></span>
+      </div>
+    </div>
+    <div class="verdict-right">
+      ${scoreBarHTML(s.trigger_score, '觸發分數 TRIGGER')}
+      ${scoreBarHTML(s.trend_score, '趨勢分數 TREND')}
+      <div>
+        <div class="score-bar-head">
+          <span class="smallcaps">百分位 PERCENTILE</span>
+          <span class="score-bar-value">${s.percentile.toFixed(1)}%</span>
+        </div>
+        <div class="pct-track">
+          <div class="pct-fill" style="width: ${s.percentile}%;"></div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// KEY POINTS + FUNDAMENTALS
+function renderKey() {
+  const s = D.summary, f = s.fundamentals;
+  const fundEntries = [
+    ['本益比 P/E', f.pe], ['每股盈餘 EPS', f.eps], ['股價淨值 P/B', f.pb], ['股東報酬 ROE', f.roe], ['殖利率 Yield', f.yield]
+  ];
+  return `
+  <div class="key-block">
+    <div class="key-left">
+      <div class="smallcaps">關鍵摘要 · KEY POINTS</div>
+      <div class="key-list">
+        ${s.key_points.map(p => `
+          <div class="key-item">
+            ${arrow(p.direction)}
+            <p>${p.text}</p>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+    <div class="key-right">
+      <div class="smallcaps">基本面 · FUNDAMENTALS</div>
+      <div class="fundamentals">
+        ${fundEntries.map(([k, v]) => `
+          <div>
+            <div class="fund-key">${k}</div>
+            <div class="fund-val">${v}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+
+// TAB BAR
+function renderTabBar() {
+  const tabs = [
+    { id: 'all', label: '全覽', eng: 'Overview' },
+    { id: 'tech', label: '技術', eng: 'Technical' },
+    { id: 'chip', label: '籌碼', eng: 'Chip' },
+    { id: 'val', label: '估值', eng: 'Valuation' },
+    { id: 'ind', label: '產業', eng: 'Industry' },
+    { id: 'bb', label: '多空', eng: 'Bull/Bear' }
+  ];
+  return `
+  <div class="tab-bar">
+    <div class="tab-list">
+      ${tabs.map(t => `<button class="tab-btn ${t.id === 'all' ? 'active' : ''}" data-tab="${t.id}">${t.label}<span class="eng">${t.eng}</span></button>`).join('')}
+    </div>
+  </div>`;
+}
+
+// SECTION HEADER
+function sectionHeader(num, title, eng) {
+  return `<div class="section-header">
+    <span class="section-num">§ ${num}</span>
+    <h2 class="section-title">${title}</h2>
+    <span class="smallcaps section-eng">${eng}</span>
+  </div>`;
+}
+
+// TECHNICAL
+function renderTech() {
+  const t = D.technical;
+  return `
+  <div class="section" data-section="tech">
+    ${sectionHeader('01', '技術面', 'TECHNICAL ANALYSIS')}
+    <div class="tech-grid">
+      <div>
+        <div class="smallcaps" style="margin-bottom: 14px;">觸發訊號 · TRIGGERS</div>
+        <div class="trigger-list">
+          ${t.triggers.map(tr => `
+            <div class="trigger ${tr.type}">
+              <span class="trigger-weight">${tr.weight > 0 ? '+' : ''}${tr.weight.toFixed(1)}</span>
+              <span class="trigger-text">${tr.text}</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+      <div>
+        <div class="smallcaps" style="margin-bottom: 14px;">指標總覽 · INDICATOR MATRIX</div>
+        <table>
+          <thead><tr>
+            <th>類別</th><th>指標</th><th>數值</th><th class="center">方向</th>
+          </tr></thead>
+          <tbody>
+            ${t.signals.map(s => `
+              <tr class="hover-row">
+                <td style="color: var(--ink2); font-size: 12px;">${s.category}</td>
+                <td style="font-weight: 500;">${s.indicator}</td>
+                <td class="num-mono">${s.value}</td>
+                <td class="center"><span class="signal-pill ${sigClass(s.signal)}">${s.signal}</span></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+        <div class="notes-strip">${t.signals.slice(0, 3).map(s => `${s.indicator}: ${s.note}`).join(' · ')}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// CHIP
+function renderChip() {
+  return `
+  <div class="section alt" data-section="chip">
+    ${sectionHeader('02', '籌碼面', 'OWNERSHIP & FLOW')}
+    <div class="chip-grid">
+      ${D.chip.rows.map(r => `
+        <div class="chip-card ${dirClass(r.direction)}">
+          <div class="chip-head">
+            <span class="smallcaps ${dirClass(r.direction)}">${r.category}</span>
+            ${arrow(r.direction)}
+          </div>
+          <div class="chip-data">${r.data}</div>
+          <div class="chip-impact">${r.impact}</div>
+        </div>
+      `).join('')}
+    </div>
+  </div>`;
+}
+
+// VALUATION
+function renderVal() {
+  const v = D.valuation;
+  const labelMap = { bear: '空方', base: '基本', bull: '多方' };
+  return `
+  <div class="section" data-section="val">
+    ${sectionHeader('03', '估值推演', 'VALUATION SCENARIOS')}
+    <div class="scenarios">
+      ${v.scenarios.map(s => {
+        const upside = ((s.target - v.current_price) / v.current_price * 100);
+        const upColor = upside >= 0 ? 'var(--bull)' : 'var(--bear)';
+        return `
+        <div class="scenario ${s.scenario}">
+          <div class="smallcaps">${labelMap[s.scenario]} SCENARIO</div>
+          <div class="scenario-price">${D.meta.market === 'TW' ? '' : '$'}${s.target}</div>
+          <div class="scenario-upside" style="color: ${upColor};">${upside >= 0 ? '+' : ''}${upside.toFixed(1)}% vs ${D.meta.market === 'TW' ? '' : '$'}${v.current_price.toFixed(2)}</div>
+          <div class="scenario-detail">
+            <div style="margin-bottom: 4px;"><strong>EPS:</strong> ${s.eps_assumption}</div>
+            <div style="margin-bottom: 4px;"><strong>P/E:</strong> ${s.pe_assumption}</div>
+            <div class="scenario-trigger">Trigger: ${s.trigger}</div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+    <div class="val-bottom">
+      <div>
+        <div class="smallcaps" style="margin-bottom: 14px;">EPS 三情境預測 · EPS FORECAST</div>
+        <div class="chart-wrap"><canvas id="eps-chart" role="img" aria-label="EPS forecast bar chart by scenario"></canvas></div>
+      </div>
+      <div>
+        <div class="smallcaps" style="margin-bottom: 14px;">同業估值比較 · PEER COMPARISON</div>
+        <table>
+          <thead><tr>
+            <th>Ticker</th><th>公司</th><th class="right">P/E</th><th class="right">P/B</th><th class="right">Yield</th>
+          </tr></thead>
+          <tbody>
+            ${v.peer_comparison.map((p, i) => `
+              <tr class="${i === 0 ? 'peer-self' : ''}">
+                <td class="num-mono" style="font-weight: ${i === 0 ? 600 : 500};">${p.ticker}</td>
+                <td style="font-size: 12px; color: var(--ink2); font-weight: ${i === 0 ? 500 : 400};">${p.name}</td>
+                <td class="right num-mono">${p.pe === 0 ? 'N/A' : p.pe.toFixed(1)}</td>
+                <td class="right num-mono">${p.pb.toFixed(2)}</td>
+                <td class="right num-mono">${p.yield > 0 ? p.yield.toFixed(1) + '%' : '—'}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>`;
+}
+
+// INDUSTRY
+function renderInd() {
+  const i = D.industry;
+  const tierLabel = { upstream: '上游', peer: '同業', downstream: '下游' };
+  return `
+  <div class="section alt" data-section="ind">
+    ${sectionHeader('04', '產業地圖', 'INDUSTRY POSITIONING')}
+    <div class="ind-top">
+      <div>
+        <div class="smallcaps" style="margin-bottom: 14px;">營收結構 · REVENUE MIX</div>
+        ${i.revenue_mix.map(r => `
+          <div class="revmix-item">
+            <div class="revmix-head">
+              <span class="revmix-name">${r.segment}</span>
+              <span class="revmix-pct">${r.pct}%</span>
+            </div>
+            <div class="revmix-bar"><div class="revmix-bar-fill ${r.trend}" style="width: ${r.pct}%;"></div></div>
+            <div class="revmix-note">${r.note}</div>
+          </div>
+        `).join('')}
+      </div>
+      <div>
+        <div class="smallcaps" style="margin-bottom: 14px;">供應鏈節點 · SUPPLY CHAIN</div>
+        ${i.supply_chain.map(s => `
+          <div class="supply-item">
+            <span class="supply-tier ${s.tier}">${tierLabel[s.tier]}</span>
+            <div style="flex: 1;">
+              <div class="supply-name">${s.name}</div>
+              <div class="supply-relation">${s.relation}</div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+    <div style="margin-bottom: 28px;">
+      <div class="smallcaps" style="margin-bottom: 14px;">成長動能 · GROWTH DRIVERS</div>
+      <div class="drivers">
+        ${i.growth_drivers.map(g => `
+          <div class="driver ${g.status}">
+            <div class="driver-head">
+              <span class="driver-name">${g.driver}</span>
+              <span class="driver-status ${g.status}">${g.status === 'confirmed' ? '確定' : '選擇權'}</span>
+            </div>
+            <div class="driver-horizon">時程 · ${g.horizon}</div>
+            <div class="driver-note">${g.note}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+    <div style="margin-bottom: 28px;">
+      <div class="smallcaps" style="margin-bottom: 14px;">領先指標 · LEAD INDICATORS</div>
+      <table>
+        <thead><tr><th>指標</th><th>現況</th><th>訊號</th></tr></thead>
+        <tbody>
+          ${i.lead_indicators.map(l => `
+            <tr class="hover-row">
+              <td style="font-weight: 500;">${l.indicator}</td>
+              <td class="num-mono" style="font-size: 12px;">${l.current}</td>
+              <td style="font-size: 12px; color: var(--ink2);">${l.signal}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+    <div class="moat-box">
+      <div class="smallcaps">護城河 · MOAT</div>
+      <p class="moat-text">${i.moat}</p>
+    </div>
+  </div>`;
+}
+
+// LEFT/RIGHT PLAYBOOK (schema v1.1; renders nothing for legacy JSON or null)
+function renderLR() {
+  const lr = D.left_right;
+  if (!lr || !Array.isArray(lr.left_ladder) || lr.left_ladder.length === 0) return '';
+  const cur = D.meta.market === 'TW' ? '' : '$';
+  return `
+    <div class="lr-block">
+      <div class="lr-head">
+        <span class="smallcaps" style="color: var(--accent);">左側 | 右側策略 · LEFT / RIGHT PLAYBOOK</span>
+        ${lr.posture ? `<span class="lr-posture">${lr.posture}</span>` : ''}
+      </div>
+      <div class="lr-grid">
+        <div class="lr-card left">
+          <div class="lr-card-title">左側 · 逆勢分批</div>
+          ${lr.narrative_left ? `<p class="lr-narrative">${lr.narrative_left}</p>` : ''}
+          <table>
+            <thead><tr>
+              <th>回測</th><th class="right">價位</th><th class="right">隱含 PE</th><th class="right">動作</th>
+            </tr></thead>
+            <tbody>
+              ${lr.left_ladder.map(r => `
+                <tr class="hover-row">
+                  <td class="num-mono" style="color: var(--accent);">${r.fib}</td>
+                  <td class="right num-mono" style="font-weight: 600;">${cur}${r.price}</td>
+                  <td class="right num-mono" style="color: var(--ink2);">${r.implied_pe}</td>
+                  <td class="right lr-ladder-action">${r.action}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+          <div class="lr-foot">
+            ${lr.sizing_left ? `<div>· ${lr.sizing_left}</div>` : ''}
+            ${lr.invalidation ? `<div class="warn">· ${lr.invalidation}</div>` : ''}
+          </div>
+        </div>
+        <div class="lr-card right">
+          <div class="lr-card-title">右側 · 順勢突破</div>
+          ${lr.narrative_right ? `<p class="lr-narrative">${lr.narrative_right}</p>` : ''}
+          ${(lr.right_entries || []).map(e => `
+            <div class="lr-line"><span class="lr-line-label" style="color: var(--bull);">${e.label}</span><span>${e.condition}</span></div>
+          `).join('')}
+          ${lr.catalysts ? `<div class="lr-line"><span class="lr-line-label" style="color: var(--accent);">催化檢查點</span><span>${lr.catalysts}</span></div>` : ''}
+          ${lr.right_stop ? `<div class="lr-line"><span class="lr-line-label" style="color: var(--bear);">停損</span><span>${lr.right_stop}</span></div>` : ''}
+          ${lr.right_trailing ? `<div class="lr-line"><span class="lr-line-label" style="color: var(--ink2);">移動停利</span><span>${lr.right_trailing}</span></div>` : ''}
+          ${lr.sizing_right ? `<div class="lr-foot">· ${lr.sizing_right}</div>` : ''}
+        </div>
+      </div>
+    </div>`;
+}
+
+// BULL/BEAR
+function renderBB() {
+  const b = D.bull_bear;
+  const wClass = w => w === '高' ? 'high' : w === '中' ? 'mid' : 'low';
+  const sevClass = s => s === '高' ? 'high' : s === '中' ? 'mid' : 'low';
+  const r = b.recommendation;
+  return `
+  <div class="section" data-section="bb">
+    ${sectionHeader('05', '多空辯論', 'BULL VS BEAR')}
+    <div class="bb-grid">
+      <div class="bb-bull">
+        <div class="bb-head bull"><span class="bb-icon bull">↗</span><h3>多方論點</h3></div>
+        ${b.bull_points.map(p => `
+          <div class="bb-point">
+            <span class="bb-weight ${wClass(p.weight)}">${p.weight}</span>
+            <span class="bb-text">${p.text}</span>
+          </div>
+        `).join('')}
+      </div>
+      <div class="bb-bear">
+        <div class="bb-head bear"><span class="bb-icon bear">↘</span><h3>空方論點</h3></div>
+        ${b.bear_points.map(p => `
+          <div class="bb-point">
+            <span class="bb-weight ${wClass(p.weight)}">${p.weight}</span>
+            <span class="bb-text">${p.text}</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+    <div style="margin-bottom: 32px;">
+      <div class="smallcaps" style="margin-bottom: 14px;">主要風險 · KEY RISKS</div>
+      <div class="risks">
+        ${b.risks.map(rk => `
+          <div class="risk-row">
+            <span class="risk-sev ${sevClass(rk.severity)}">${rk.severity} 級</span>
+            <div>
+              <div class="risk-title">${rk.risk}</div>
+              <div class="risk-desc">${rk.description}</div>
+            </div>
+            <span class="risk-horizon">${rk.horizon}</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+    <div class="action-plan">
+      <div class="ap-head">
+        <span class="ap-icon">◎</span>
+        <span class="smallcaps">操作建議 · ACTION PLAN</span>
+      </div>
+      <div class="ap-grid">
+        <div>
+          <div class="ap-label">進場區間</div>
+          <div class="ap-value">${r.entry_zone}</div>
+        </div>
+        <div>
+          <div class="ap-label">停損價</div>
+          <div class="ap-value sl">${r.stop_loss}</div>
+        </div>
+        <div>
+          <div class="ap-label">建議倉位</div>
+          <div class="ap-value pos">${r.position_size}</div>
+        </div>
+      </div>
+      <div class="ap-strategy">"${r.strategy}"</div>
+    </div>
+    ${renderLR()}
+  </div>`;
+}
+
+function renderFooter() {
+  return `
+  <div class="footer">
+    <div class="smallcaps">StockPulse · Equity Research Dashboard</div>
+    <div class="footer-meta">Generated ${D.meta.generated_at} · Not investment advice</div>
+  </div>`;
+}
+
+// MOUNT
+const app = document.getElementById('app');
+app.innerHTML =
+  renderHeader() +
+  renderVerdict() +
+  renderKey() +
+  renderTabBar() +
+  '<div id="sections">' +
+  renderTech() +
+  renderChip() +
+  renderVal() +
+  renderInd() +
+  renderBB() +
+  '</div>' +
+  renderFooter();
+
+// CHART
+function drawChart() {
+  const ctx = document.getElementById('eps-chart');
+  if (!ctx) return;
+  const v = D.valuation.eps_forecast;
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: v.map(d => d.year),
+      datasets: [
+        { label: '空方', data: v.map(d => d.bear), backgroundColor: '#5FB97A' },
+        { label: '基本', data: v.map(d => d.base), backgroundColor: '#D9A93F' },
+        { label: '多方', data: v.map(d => d.bull), backgroundColor: '#E07B7B' }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom', labels: { font: { family: 'DM Sans', size: 12 }, color: '#A8A192', boxWidth: 12, boxHeight: 12 } },
+        tooltip: { backgroundColor: '#17171A', titleColor: '#EDE6D5', bodyColor: '#EDE6D5', borderColor: '#2D2A24', borderWidth: 1, titleFont: { family: 'DM Sans' }, bodyFont: { family: 'JetBrains Mono' } }
+      },
+      scales: {
+        x: { ticks: { font: { family: 'JetBrains Mono', size: 12 }, color: '#A8A192' }, grid: { display: false } },
+        y: { ticks: { font: { family: 'JetBrains Mono', size: 12 }, color: '#A8A192' }, grid: { color: '#2D2A24', drawBorder: false } }
+      }
+    }
+  });
+}
+drawChart();
+
+// TAB SWITCHING
+function setTab(id) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === id));
+  const sections = document.querySelectorAll('[data-section]');
+  if (id === 'all') {
+    sections.forEach(s => s.style.display = '');
+  } else {
+    sections.forEach(s => s.style.display = s.dataset.section === id ? '' : 'none');
+  }
+  // re-draw chart if val is visible
+  if (id === 'all' || id === 'val') {
+    setTimeout(() => {
+      const old = document.getElementById('eps-chart');
+      if (old && !old._chartDrawn) { drawChart(); old._chartDrawn = true; }
+    }, 50);
+  }
+}
+document.querySelectorAll('.tab-btn').forEach(b => b.addEventListener('click', () => setTab(b.dataset.tab)));
+</script>
+</body>
+</html>
