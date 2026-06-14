@@ -6,10 +6,14 @@
 <style>
 :root{color-scheme:dark}
 *{box-sizing:border-box}
-body{margin:0;font-family:-apple-system,"Segoe UI",system-ui,sans-serif;background:#0e1116;color:#e6edf3;padding:32px 20px;max-width:980px;margin:0 auto}
+body{margin:0;font-family:-apple-system,"Segoe UI",system-ui,sans-serif;background:#0e1116;color:#e6edf3;padding:32px 20px;max-width:1140px;margin:0 auto}
 h1{font-size:24px;margin:0 0 4px}
 .meta{color:#8b949e;font-size:13px;margin-bottom:28px}
-h2{font-size:15px;color:#8b949e;text-transform:uppercase;letter-spacing:.05em;margin:32px 0 12px;border-bottom:1px solid #21262d;padding-bottom:8px}
+.cols{display:grid;grid-template-columns:2fr 1fr;gap:28px;align-items:start}
+@media(max-width:760px){.cols{grid-template-columns:1fr}.col-macro{order:-1}}
+h2{font-size:15px;color:#8b949e;text-transform:uppercase;letter-spacing:.05em;margin:0 0 12px;border-bottom:1px solid #21262d;padding-bottom:8px;overflow:hidden}
+h2 .latest{float:right;text-transform:none;letter-spacing:normal;font-size:12px;font-weight:600;background:#1f6feb;color:#fff;padding:3px 11px;border-radius:6px;text-decoration:none}
+h2 .latest:hover{background:#388bfd}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
 .card{display:block;background:#161b22;border:1px solid #21262d;border-radius:10px;padding:14px 16px;text-decoration:none;color:inherit;transition:.15s}
 .card:hover{border-color:#388bfd;background:#1c2230}
@@ -17,7 +21,9 @@ h2{font-size:15px;color:#8b949e;text-transform:uppercase;letter-spacing:.05em;ma
 .card .s{color:#8b949e;font-size:12px;margin-top:4px}
 </style></head><body>
 <h1>StockAnalyzer Reports</h1>
-<div class="meta">個股 AI 報告 26 份 · 總經 Macro Compass 11 份</div>
+<div class="meta">個股 AI 報告 26 份 · 總經 Macro Compass 10 份</div>
+<div class="cols">
+<section class="col col-ai">
 <h2>個股 AI 報告</h2>
 <div class="grid">
 <a class="card" href="ai/3665_20260612_112233.html"><div class="t">3665</div><div class="s">2026-06-12 11:22</div></a>
@@ -47,7 +53,9 @@ h2{font-size:15px;color:#8b949e;text-transform:uppercase;letter-spacing:.05em;ma
 <a class="card" href="ai/4583_20260414_121417.html"><div class="t">4583</div><div class="s">2026-04-14 12:14</div></a>
 <a class="card" href="ai/6290_20260413_190739.html"><div class="t">6290</div><div class="s">2026-04-13 19:07</div></a>
 </div>
-<h2>總經 Macro Compass</h2>
+</section>
+<section class="col col-macro">
+<h2>總經 Macro Compass<a class="latest" href="macro/latest.html">📄 最新報告</a></h2>
 <div class="grid">
 <a class="card" href="macro/2026-06-14_185033.html"><div class="t">Macro Compass</div><div class="s">2026-06-14 18:50</div></a>
 <a class="card" href="macro/2026-06-14_180338.html"><div class="t">Macro Compass</div><div class="s">2026-06-14 18:03</div></a>
@@ -59,6 +67,7 @@ h2{font-size:15px;color:#8b949e;text-transform:uppercase;letter-spacing:.05em;ma
 <a class="card" href="macro/2026-05-14_083828.html"><div class="t">Macro Compass</div><div class="s">2026-05-14 08:38</div></a>
 <a class="card" href="macro/2026-05-09_171555.html"><div class="t">Macro Compass</div><div class="s">2026-05-09 17:15</div></a>
 <a class="card" href="macro/2026-05-09_171139.html"><div class="t">Macro Compass</div><div class="s">2026-05-09 17:11</div></a>
-<a class="card" href="macro/latest.html"><div class="t">最新</div><div class="s">latest</div></a>
+</div>
+</section>
 </div>
 </body></html>
