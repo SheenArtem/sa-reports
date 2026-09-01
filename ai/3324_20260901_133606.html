@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="color-scheme" content="light dark">
+<title>雙鴻 1700 劇本</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@700;900&family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --ground: #F5F7F9;
+    --surface: #FFFFFF;
+    --surface-2: #EDF1F5;
+    --ink: #17222E;
+    --muted: #5A6B7C;
+    --faint: #8B99A8;
+    --hairline: #DCE3E9;
+    --accent-fill: #0891B2;
+    --accent-soft: #D8EEF5;
+    --accent-text: #12617E;
+    --bull: #C8302E;          /* 台股慣例：紅=漲/多方 */
+    --bull-soft: #FBEAEA;
+    --bear: #1E7F4F;          /* 綠=跌/空方 */
+    --bear-soft: #E6F2EC;
+    --warn: #A85410;
+    --warn-soft: #FBEFDF;
+    --serif: "Noto Serif TC", "PMingLiU", serif;
+    --sans: "Noto Sans TC", "Microsoft JhengHei", "PingFang TC", sans-serif;
+    --mono: "IBM Plex Mono", Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #0E141B;
+      --surface: #151D26;
+      --surface-2: #1C2733;
+      --ink: #E8EDF2;
+      --muted: #93A3B2;
+      --faint: #6B7B8A;
+      --hairline: #2A3644;
+      --accent-fill: #2FA8C7;
+      --accent-soft: #143440;
+      --accent-text: #6CC5DE;
+      --bull: #E05252;
+      --bull-soft: #3A2023;
+      --bear: #3FBF8A;
+      --bear-soft: #16302A;
+      --warn: #E39A4A;
+      --warn-soft: #34281A;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #0E141B;
+    --surface: #151D26;
+    --surface-2: #1C2733;
+    --ink: #E8EDF2;
+    --muted: #93A3B2;
+    --faint: #6B7B8A;
+    --hairline: #2A3644;
+    --accent-fill: #2FA8C7;
+    --accent-soft: #143440;
+    --accent-text: #6CC5DE;
+    --bull: #E05252;
+    --bull-soft: #3A2023;
+    --bear: #3FBF8A;
+    --bear-soft: #16302A;
+    --warn: #E39A4A;
+    --warn-soft: #34281A;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.75;
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+  }
+  .page {
+    max-width: 940px;
+    margin: 0 auto;
+    padding: 0 28px 72px;
+  }
+  .num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+  .up   { color: var(--bull); }
+  .down { color: var(--bear); }
+  .flat { color: var(--warn); }
+
+  /* ---- masthead ---- */
+  .coolant-band {
+    height: 5px;
+    background: linear-gradient(90deg, var(--accent-fill), var(--accent-text));
+    border-radius: 0 0 3px 3px;
+  }
+  header.mast { padding: 34px 0 26px; border-bottom: 2px solid var(--ink); }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .18em;
+    color: var(--accent-text);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    display: flex; gap: 14px; flex-wrap: wrap;
+  }
+  .eyebrow .sep { color: var(--faint); }
+  h1 {
+    font-family: var(--serif);
+    font-weight: 900;
+    font-size: clamp(26px, 4.4vw, 38px);
+    line-height: 1.3;
+    margin: 0 0 10px;
+    text-wrap: balance;
+  }
+  .mast-sub { color: var(--muted); font-size: 14px; max-width: 62ch; margin: 0; }
+  .mast-meta {
+    display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px;
+  }
+  .chip {
+    font-family: var(--mono); font-size: 12px;
+    border: 1px solid var(--hairline);
+    background: var(--surface);
+    border-radius: 999px;
+    padding: 3px 12px;
+    color: var(--muted);
+  }
+  .chip strong { color: var(--ink); font-weight: 600; }
+  .chip.hot { border-color: var(--bull); color: var(--bull); background: var(--bull-soft); }
+
+  /* ---- sections ---- */
+  section { margin-top: 44px; }
+  .sec-head {
+    display: flex; align-items: baseline; gap: 12px;
+    border-bottom: 1px solid var(--hairline);
+    padding-bottom: 8px; margin-bottom: 18px;
+  }
+  .sec-head .no {
+    font-family: var(--mono); font-size: 11px; color: var(--accent-text);
+    letter-spacing: .14em;
+  }
+  h2 {
+    font-family: var(--serif); font-weight: 700;
+    font-size: 20px; margin: 0; line-height: 1.4;
+  }
+  .sec-note { font-size: 12.5px; color: var(--faint); margin-left: auto; text-align: right; }
+
+  /* ---- thesis ---- */
+  .thesis {
+    margin-top: 26px;
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-left: 4px solid var(--accent-fill);
+    border-radius: 6px;
+    padding: 20px 24px;
+  }
+  .thesis p { margin: 0; font-size: 16px; line-height: 1.9; }
+  .thesis .lede { font-family: var(--serif); font-weight: 700; font-size: 17.5px; }
+  .thesis .follow { margin-top: 10px; color: var(--muted); font-size: 14px; }
+
+  /* ---- KPI row ---- */
+  .kpis {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+  }
+  .kpi {
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: 6px;
+    padding: 12px 14px 10px;
+  }
+  .kpi .k-label { font-size: 11.5px; color: var(--muted); letter-spacing: .04em; }
+  .kpi .k-val {
+    font-family: var(--mono); font-weight: 600;
+    font-size: 20px; line-height: 1.35; margin-top: 2px;
+  }
+  .kpi .k-foot { font-size: 11.5px; color: var(--faint); margin-top: 2px; }
+
+  /* ---- dual threshold ---- */
+  .duo { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 640px) { .duo { grid-template-columns: 1fr; } }
+  .gate {
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: 6px;
+    padding: 16px 18px;
+  }
+  .gate .g-tag {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .12em;
+    text-transform: uppercase;
+  }
+  .gate .g-num { font-family: var(--mono); font-weight: 600; font-size: 26px; margin: 4px 0 2px; }
+  .gate p { margin: 6px 0 0; font-size: 13.5px; color: var(--muted); line-height: 1.7; }
+  .gate.support { border-top: 3px solid var(--accent-fill); }
+  .gate.support .g-tag { color: var(--accent-text); }
+  .gate.expect { border-top: 3px solid var(--warn); }
+  .gate.expect .g-tag { color: var(--warn); }
+  .gate-note {
+    grid-column: 1 / -1;
+    font-size: 13px; color: var(--muted);
+    background: var(--surface-2);
+    border-radius: 6px; padding: 10px 16px;
+  }
+
+  /* ---- tables ---- */
+  .tbl-wrap { overflow-x: auto; border: 1px solid var(--hairline); border-radius: 6px; background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; min-width: 720px; font-size: 13.5px; }
+  th, td { padding: 9px 14px; text-align: left; vertical-align: top; }
+  thead th {
+    font-size: 11.5px; color: var(--muted); font-weight: 500;
+    letter-spacing: .05em; border-bottom: 1px solid var(--ink);
+    white-space: nowrap; background: var(--surface);
+  }
+  tbody tr { border-bottom: 1px solid var(--hairline); }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--surface-2); }
+  td.n, th.n { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  tr.star { background: var(--accent-soft); }
+  tr.star:hover { background: var(--accent-soft); }
+  tr.star td:first-child { border-left: 3px solid var(--accent-fill); }
+  .tag {
+    display: inline-block; font-size: 11.5px; font-weight: 500;
+    border-radius: 4px; padding: 1px 8px; white-space: nowrap;
+  }
+  .tag.bull { background: var(--bull-soft); color: var(--bull); }
+  .tag.bear { background: var(--bear-soft); color: var(--bear); }
+  .tag.warn { background: var(--warn-soft); color: var(--warn); }
+  .tbl-foot { font-size: 12px; color: var(--faint); margin-top: 8px; line-height: 1.7; }
+
+  /* ---- range chart ---- */
+  .chart {
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: 6px;
+    padding: 18px 20px 12px;
+  }
+  .chart-title { font-size: 13px; color: var(--muted); margin-bottom: 14px; }
+  .refline-legend { display: flex; gap: 18px; flex-wrap: wrap; font-size: 11.5px; color: var(--muted); margin-bottom: 12px; }
+  .refline-legend .key { display: inline-flex; align-items: center; gap: 6px; }
+  .key .swatch { width: 16px; height: 0; border-top: 2px solid; display: inline-block; }
+  .plot { position: relative; }
+  .rows { position: relative; z-index: 2; }
+  .crow { display: grid; grid-template-columns: 96px 1fr; align-items: center; gap: 10px; height: 40px; }
+  .crow .rlabel { font-family: var(--mono); font-size: 12px; color: var(--ink); text-align: right; white-space: nowrap; }
+  .crow .track { position: relative; height: 100%; }
+  .cbar {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    height: 14px; border-radius: 4px;
+    background: var(--accent-fill); opacity: .55;
+  }
+  .crow:hover .cbar { opacity: .85; }
+  .crow.main .cbar { opacity: .95; box-shadow: 0 0 0 2px var(--surface), 0 0 0 3px var(--accent-fill); }
+  .cbar .blabel {
+    position: absolute; left: calc(100% + 8px); top: 50%; transform: translateY(-50%);
+    font-family: var(--mono); font-size: 11px; color: var(--muted); white-space: nowrap;
+  }
+  .cbar .blabel.flip {
+    left: auto; right: calc(100% + 8px);
+  }
+  .reflines { position: absolute; inset: 0 0 0 106px; z-index: 1; }
+  .refline { position: absolute; top: -4px; bottom: -4px; width: 0; }
+  .refline .rl-line { position: absolute; inset: 0; border-left: 2px solid; }
+  .refline.now .rl-line { border-color: var(--bull); }
+  .refline.consensus .rl-line { border-color: var(--faint); border-left-style: dashed; }
+  .refline.target .rl-line { border-color: var(--warn); border-left-style: dashed; }
+  .axis {
+    display: flex; justify-content: space-between;
+    margin-left: 106px; margin-top: 8px; padding-top: 6px;
+    border-top: 1px solid var(--hairline);
+    font-family: var(--mono); font-size: 11px; color: var(--faint);
+  }
+
+  /* ---- timeline ---- */
+  .timeline { list-style: none; margin: 0; padding: 0; }
+  .timeline li {
+    position: relative;
+    padding: 0 0 22px 34px;
+    border-left: 2px solid var(--hairline);
+    margin-left: 10px;
+  }
+  .timeline li:last-child { padding-bottom: 4px; border-left-color: transparent; }
+  .timeline .dot {
+    position: absolute; left: -8px; top: 4px;
+    width: 14px; height: 14px; border-radius: 50%;
+    background: var(--surface); border: 3px solid var(--accent-fill);
+  }
+  .timeline li.crux .dot { background: var(--accent-fill); }
+  .timeline .t-when {
+    font-family: var(--mono); font-size: 11.5px; color: var(--accent-text);
+    letter-spacing: .08em;
+  }
+  .timeline .t-head { font-weight: 700; font-size: 15px; margin: 1px 0 3px; }
+  .timeline p { margin: 0; font-size: 13.5px; color: var(--muted); line-height: 1.75; }
+
+  /* ---- watch / fail ---- */
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 720px) { .split { grid-template-columns: 1fr; } }
+  .panel {
+    background: var(--surface); border: 1px solid var(--hairline);
+    border-radius: 6px; padding: 16px 20px;
+  }
+  .panel h3 {
+    font-family: var(--serif); font-size: 15.5px; margin: 0 0 10px;
+    padding-bottom: 8px; border-bottom: 1px solid var(--hairline);
+  }
+  .panel ol, .panel ul { margin: 0; padding-left: 20px; }
+  .panel li { font-size: 13.5px; color: var(--muted); margin-bottom: 8px; line-height: 1.7; }
+  .panel li strong { color: var(--ink); font-weight: 600; }
+  .panel li:last-child { margin-bottom: 0; }
+
+  /* ---- footnotes ---- */
+  .foot {
+    margin-top: 48px; padding-top: 16px;
+    border-top: 2px solid var(--ink);
+    font-size: 12px; color: var(--faint); line-height: 1.9;
+  }
+  .foot p { margin: 0 0 6px; }
+  .foot .fn-label { font-family: var(--mono); color: var(--muted); letter-spacing: .1em; }
+
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+
+<div class="coolant-band"></div>
+<div class="page">
+
+<header class="mast">
+  <div class="eyebrow">
+    <span>情境推演 · Scenario Analysis</span><span class="sep">/</span>
+    <span>2026-09-01</span><span class="sep">/</span>
+    <span>上櫃 · 散熱模組（AI 水冷）</span>
+  </div>
+  <h1>雙鴻 3324 — 8 月營收公布後的股價劇本</h1>
+  <p class="mast-sub">整合兩套獨立推演：本地 run-rate 估值模型 × 高盛／FactSet 共識錨定。核心問題：營收開在哪一格，1,700 元才站得穩。</p>
+  <div class="mast-meta">
+    <span class="chip hot">現價 <strong>1,375</strong> · 連兩日漲停（8/31、9/1）</span>
+    <span class="chip">六個交易日累漲 <strong>+42%</strong></span>
+    <span class="chip">市值 ≈ <strong>1,380 億</strong></span>
+    <span class="chip">8 月營收公布期限 <strong>9/10</strong></span>
+  </div>
+</header>
+
+<div class="thesis">
+  <p class="lede">最能站穩 1,700 的劇本：8 月營收 44～46 億（月增 17～22%）＋ 公司確認 9 月與 Q4 延續性 ＋ 毛利率回升至 30～31% ＝ 法人把 2027 EPS 從 70～73 元上修至 80～85 元，套 20～21 倍本益比。</p>
+  <p class="follow">關鍵區別：1,700 是「法人可以解釋的強多價」（80 元 × 21.25 倍 ＝ 85 元 × 20 倍 ＝ 1,700），不需要新信仰，只需要驗證；2,000 才是需要「2027 EPS 100 元＋軋空」的情緒尾部價。技術上 1,375 → 1,700 只是兩根漲停（1,510 → 1,660）再加 2.4%。</p>
+</div>
+
+<section>
+  <div class="sec-head"><span class="no">01</span><h2>定價基礎現況</h2><span class="sec-note">單位：新台幣</span></div>
+  <div class="kpis">
+    <div class="kpi"><div class="k-label">現價（9/1 漲停）</div><div class="k-val up">1,375</div><div class="k-foot">兩天前收盤 1,140</div></div>
+    <div class="kpi"><div class="k-label">7 月營收</div><div class="k-val up">37.65 億</div><div class="k-foot">月增 +38.5% · 年增 +116.7%</div></div>
+    <div class="kpi"><div class="k-label">2026 H1 EPS</div><div class="k-val">23.01</div><div class="k-foot">Q2 10.4 元（含匯損壓抑）</div></div>
+    <div class="kpi"><div class="k-label">2026E 共識 EPS</div><div class="k-val">57.3</div><div class="k-foot">現價本益比 24.0 倍</div></div>
+    <div class="kpi"><div class="k-label">2027E EPS</div><div class="k-val">69.7<span style="font-size:13px;color:var(--faint)"> / 73.2</span></div><div class="k-foot">高盛 / FactSet 共識</div></div>
+    <div class="kpi"><div class="k-label">目標價</div><div class="k-val">1,425</div><div class="k-foot">中位；高盛 1,353 · 最高 1,740</div></div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><span class="no">02</span><h2>兩條門檻線 — 現價 1,375 站在哪</h2></div>
+  <div class="duo">
+    <div class="gate support">
+      <div class="g-tag">估值支撐線</div>
+      <div class="g-num">34 億<span style="font-size:14px;color:var(--muted)"> / 月</span></div>
+      <p>現價 1,375 ＝ 25 倍 × 2026E EPS 55 元，反推等於「8–12 月每月營收 34 億」。8 月只要 ≥ 34 億（年增 +81%），現價就有基本面地板 —— 7 月已做到 37.65 億，此線大概率不破。</p>
+    </div>
+    <div class="gate expect">
+      <div class="g-tag">市場預期線</div>
+      <div class="g-num">≈ 40 億<span style="font-size:14px;color:var(--muted)"> / 月</span></div>
+      <p>連兩根漲停買進來的預期。8 月營收低於 40 億，即使高於估值支撐線，預期差轉負照樣利多出盡回檔 —— 動能股交易的是預期差，不是絕對值。</p>
+    </div>
+    <div class="gate-note">兩線之間（34～40 億）是最擰巴的區間：估值撐得住、預期卻落空 —— 對應「先跳後回、區間 1,300～1,500」的走法。要往 1,700 走，8 月必須明確站上預期線之上（44 億+）。</div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><span class="no">03</span><h2>劇本矩陣 — 8 月營收開在哪一格</h2><span class="sec-note">紅＝偏多解讀 · 綠＝偏空解讀（台股慣例）</span></div>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th class="n">8 月營收</th>
+          <th class="n">月增 / 年增</th>
+          <th class="n">Q3 vs 高盛 103.3 億</th>
+          <th class="n">2026E EPS</th>
+          <th class="n">2027E EPS 檔位</th>
+          <th class="n">對應股價區間</th>
+          <th>公布後解讀</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="n">&lt; 35 億</td><td class="n down">−7%↓ / +86%</td><td class="n">≈ 持平</td>
+          <td class="n">~55</td><td class="n">70 維持</td><td class="n down">1,150–1,250</td>
+          <td><span class="tag bear">透支回測</span> 兩根漲停變預付</td>
+        </tr>
+        <tr>
+          <td class="n">38–40 億</td><td class="n">+1~6% / +102~113%</td><td class="n">+8~14%</td>
+          <td class="n">58.2–59.7</td><td class="n">73–76</td><td class="n">1,300–1,500</td>
+          <td><span class="tag warn">好但已反映</span> 利多出盡風險</td>
+        </tr>
+        <tr>
+          <td class="n">42 億</td><td class="n up">+12% / +124%</td><td class="n">+14~18%</td>
+          <td class="n">61.2</td><td class="n">75–78</td><td class="n">1,450–1,550</td>
+          <td><span class="tag warn">偏多</span> 需搭配 9 月展望</td>
+        </tr>
+        <tr class="star">
+          <td class="n"><strong>44–46 億</strong></td><td class="n up">+17~22% / +134~145%</td><td class="n up">+15~22%</td>
+          <td class="n">62.8–64.3</td><td class="n up">80–85</td><td class="n up"><strong>1,600–1,700</strong></td>
+          <td><span class="tag bull">上修啟動</span> 1,700 的合理門檻</td>
+        </tr>
+        <tr>
+          <td class="n">48 億</td><td class="n up">+28% / +156%</td><td class="n up">+22~27%</td>
+          <td class="n">65.9</td><td class="n up">85–90</td><td class="n up">1,700–1,850</td>
+          <td><span class="tag bull">強烈上修</span> 1,700 較能站穩</td>
+        </tr>
+        <tr>
+          <td class="n">50 億以上</td><td class="n up">+33%↑ / +166%↑</td><td class="n up">+27%↑</td>
+          <td class="n">67+</td><td class="n up">90–100</td><td class="n up">1,800–2,000+</td>
+          <td><span class="tag bull">跳階</span> 市場直接交易 2,000 劇本</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="tbl-foot">模型：2026E EPS ＝ H1 已實現 23.01 ＋（7–12 月營收 × 下半年淨利率 15.5% ÷ 1.004 億股），8–12 月採「持平於 8 月」的保守假設；Q4 若季節性放量則數字更高。Q3 比較基準為高盛預估 103.32 億（7 月已實現 37.65 億，8＋9 月僅需 65.67 億即達標）；9 月假設 35 億～與 8 月持平。超出預估 14% 以上，才足以觸發法人重做財測。</p>
+</section>
+
+<section>
+  <div class="sec-head"><span class="no">04</span><h2>對應股價區間 vs 三條參考線</h2></div>
+  <div class="chart">
+    <div class="chart-title">各營收檔位的合理股價區間（橫軸：股價，元）</div>
+    <div class="refline-legend">
+      <span class="key"><span class="swatch" style="border-color:var(--bull)"></span>現價 1,375</span>
+      <span class="key"><span class="swatch" style="border-color:var(--faint);border-top-style:dashed"></span>共識目標中位 1,425</span>
+      <span class="key"><span class="swatch" style="border-color:var(--warn);border-top-style:dashed"></span>1,700 觀察位</span>
+    </div>
+    <div class="plot">
+      <div class="reflines">
+        <div class="refline now" style="left:27.5%"><div class="rl-line"></div></div>
+        <div class="refline consensus" style="left:32.5%"><div class="rl-line"></div></div>
+        <div class="refline target" style="left:60%"><div class="rl-line"></div></div>
+      </div>
+      <div class="rows">
+        <div class="crow"><span class="rlabel">&lt;35 億</span><div class="track"><div class="cbar" style="left:5%;width:10%"><span class="blabel">1,150–1,250</span></div></div></div>
+        <div class="crow"><span class="rlabel">38–40 億</span><div class="track"><div class="cbar" style="left:20%;width:20%"><span class="blabel">1,300–1,500</span></div></div></div>
+        <div class="crow"><span class="rlabel">42 億</span><div class="track"><div class="cbar" style="left:35%;width:10%"><span class="blabel">1,450–1,550</span></div></div></div>
+        <div class="crow main"><span class="rlabel">44–46 億</span><div class="track"><div class="cbar" style="left:50%;width:10%"><span class="blabel">1,600–1,700 ★</span></div></div></div>
+        <div class="crow"><span class="rlabel">48 億</span><div class="track"><div class="cbar" style="left:60%;width:15%"><span class="blabel">1,700–1,850</span></div></div></div>
+        <div class="crow"><span class="rlabel">50 億+</span><div class="track"><div class="cbar" style="left:70%;width:25%"><span class="blabel flip">1,800–2,000+</span></div></div></div>
+      </div>
+      <div class="axis"><span>1,100</span><span>1,300</span><span>1,500</span><span>1,700</span><span>1,900</span><span>2,100</span></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><span class="no">05</span><h2>1,700 主劇本 — 五步時間軸</h2><span class="sec-note">以 8 月營收公布日為 T 日（約 9/5–9/10）</span></div>
+  <ol class="timeline">
+    <li>
+      <span class="dot"></span>
+      <div class="t-when">T 日前（9/2 – T−1）</div>
+      <div class="t-head">公布前不崩、最好是換手整理</div>
+      <p>市場維持「40 億以上」的預期。健康版本是 1,300–1,500 震盪洗籌碼，而非續飆——搶跑越滿，T 日利多出盡的空間越大。</p>
+    </li>
+    <li class="crux">
+      <span class="dot"></span>
+      <div class="t-when">T 日 · 生死線</div>
+      <div class="t-head">8 月營收公告 44–48 億</div>
+      <p>不只創高，且顯著超過股價已隱含的約 40 億預期線。當日跳空 7–10% 或漲停。隱含 Q3 營收 118–128 億、季增約 4 成，比高盛預估高 15% 以上——這個落差才足以讓法人重做財測。</p>
+    </li>
+    <li>
+      <span class="dot"></span>
+      <div class="t-when">T+0 – T+3</div>
+      <div class="t-head">公司說法排除「一次性」解讀</div>
+      <p>確認非出貨遞延、非提前拉貨；透露 9 月與 Q4 訂單能見度，CDU（冷卻液分配裝置）、IHS（整合式散熱蓋）、ASIC 液冷等高單價產品比重上升，毛利率往 30–31% 回升。</p>
+    </li>
+    <li>
+      <span class="dot"></span>
+      <div class="t-when">T+3 – T+10</div>
+      <div class="t-head">法人上修循環點火</div>
+      <p>2027 EPS 由 70–73 元上修至 80–85 元（80 × 21.25 倍 ＝ 85 × 20 倍 ＝ 1,700），外資目標價集中升至 1,750–1,900。原因 VR 平台疑慮調降的美系外資被數字逼著回補觀點；外資轉連續淨買（日買超 2,000 張級）。</p>
+    </li>
+    <li>
+      <span class="dot"></span>
+      <div class="t-when">9 月中下旬</div>
+      <div class="t-head">階梯上行至 1,650–1,750</div>
+      <p>Q3 財報前瞻季節加持。若中途進處置（分盤撮合），時間軸拉長一至兩週但不改終點——處置影響速度，不影響定價。注意：若沒有新一輪外資調升接手，觸及 1,700 容易利多出盡。</p>
+    </li>
+  </ol>
+</section>
+
+<section>
+  <div class="sec-head"><span class="no">06</span><h2>三個價位的本質對照</h2></div>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th></th><th class="n">1,500 — 基準偏多</th><th class="n">1,700 — 合理強多</th><th class="n">2,000 — 情緒尾部</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>8 月營收需求</td><td class="n">40–42 億</td><td class="n up"><strong>44–48 億</strong></td><td class="n">50 億以上</td></tr>
+        <tr><td>2027 EPS 共識變化</td><td class="n">維持 73–76</td><td class="n up">上修 80–85</td><td class="n">信仰 90–100</td></tr>
+        <tr><td>本益比</td><td class="n">25× 2026E</td><td class="n">20–21× 2027E</td><td class="n">20–22× 2027E 高標</td></tr>
+        <tr><td>額外引擎</td><td>不需要</td><td>9 月延續性＋外資翻多</td><td>軋空＋板塊重評價</td></tr>
+        <tr><td>漲停路徑</td><td class="n">約 1 根</td><td class="n">2 根＋2.4%</td><td class="n">4 根</td></tr>
+        <tr><td>性質</td><td><span class="tag warn">共識照抄</span></td><td><span class="tag bull">法人可解釋</span></td><td><span class="tag bull">籌碼與情緒定價</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><span class="no">07</span><h2>監測與風險</h2></div>
+  <div class="split">
+    <div class="panel">
+      <h3>監測清單（按時間序）</h3>
+      <ol>
+        <li><strong>9/10 前的 8 月營收</strong>——44 億是 1,700 劇本的生死線</li>
+        <li><strong>公司展望用語</strong>——「常態爬坡」vs「遞延／提前拉貨」，決定數字能否年化</li>
+        <li><strong>外資買賣超連續性</strong>——日買超 2,000 張以上才推得動 1,400 億市值</li>
+        <li><strong>大行報告關鍵字</strong>——「2027 EPS ≥ 80」「目標價 ≥ 1,750」出現＝引擎點火</li>
+        <li><strong>借券賣出餘額</strong>——7/14 快取約佔股本 7.3%；餘額不減＋股價漲＝軋空燃料仍在（最新水位需更新）</li>
+        <li><strong>台幣匯率</strong>——Q2 匯損已把 EPS 從 12.61 打到 10.4，是 EPS 端最大變數</li>
+        <li><strong>櫃買注意／處置公告</strong>——六日累漲 42% 已達注意標準，處置＝分盤撮合、節奏放慢</li>
+      </ol>
+    </div>
+    <div class="panel">
+      <h3>失敗模式（1,700 落空的樣子）</h3>
+      <ul>
+        <li><strong>8 月低於 40 億</strong>——預期線跌破，回測 1,150–1,250；1,700 幾乎只能靠籌碼硬拉</li>
+        <li><strong>40–42 億</strong>——「好但不爆」，先漲後回，9 月區間 1,300–1,550，1,700 延至 11 月 Q3 財報再驗證</li>
+        <li><strong>數字夠但外資趁利多出貨</strong>——假突破，高點停在 1,500 附近；公布後盯的是買賣超不是價格</li>
+        <li><strong>台幣急升或大盤系統性回檔</strong>——EPS 上修故事被匯損打斷，全劇本延後</li>
+        <li><strong>只有單月創高、沒有延續性</strong>——1,700 大概率只是短暫觸及，不容易站穩</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<footer class="foot">
+  <p><span class="fn-label">MODEL</span> 2026E EPS ＝ 23.01 ＋（7–12 月營收 × 15.5% ÷ 1.004 億股）。下半年淨利率每 ±1 個百分點 ≈ EPS ±2.3 元 ≈ 股價 ±58 元（25 倍）。匯率是此假設最大的敏感點。</p>
+  <p><span class="fn-label">SOURCES</span> 月營收／季報／股價：本地快取（FinMind／TWSE／TPEX，截至 2026-09-01）。共識：FactSet 調查（目標中位 1,425、2026E 57.3、2027E 73.15）。高盛 2027 EPS 69.72／19.4 倍／目標價 1,353、Q3 預估 103.32 億：來自使用者提供之公開摘要，未經獨立驗證。籌碼（借券 7.3%）快取截至 7/14。</p>
+  <p><span class="fn-label">NOTE</span> 本頁為情境推演，非投資建議。紅＝偏多／上漲、綠＝偏空／下跌（台股慣例）。2026-09-01 產出。</p>
+</footer>
+
+</div>
+
+</body>
+</html>
